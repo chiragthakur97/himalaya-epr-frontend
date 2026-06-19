@@ -1,0 +1,165 @@
+.app-header {
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid #e8eaf6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 0 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+// ── Left ──────────────────────────────────────────────────────────────────────
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu-btn {
+  color: #3949ab !important;
+}
+
+.page-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 4px;
+
+  .breadcrumb-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #3949ab;
+  }
+
+  .breadcrumb-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a237e;
+  }
+}
+
+// ── Right ─────────────────────────────────────────────────────────────────────
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+  padding: 6px 12px;
+  background: #f5f6fa;
+  border-radius: 20px;
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 640px) {
+    display: none;
+  }
+}
+
+// ── User chip ─────────────────────────────────────────────────────────────────
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 24px;
+  border: 1px solid #e8eaf6;
+  cursor: pointer;
+  transition: background .15s;
+  background: #f8f9ff;
+
+  &:hover {
+    background: #e8eaf6;
+  }
+}
+
+.user-avatar-sm {
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #3949ab;
+  }
+}
+
+.user-chip-info {
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 640px) {
+    display: none;
+  }
+}
+
+.user-chip-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a237e;
+  line-height: 1.3;
+}
+
+.user-chip-role {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.chevron {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #6b7280;
+}
+
+// ── Dropdown ──────────────────────────────────────────────────────────────────
+
+.menu-user-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+
+  .menu-avatar {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: #3949ab;
+  }
+}
+
+.menu-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a237e;
+  margin: 0;
+}
+
+.menu-email {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.logout-menu-item {
+  color: #ef4444 !important;
+  mat-icon { color: #ef4444 !important; }
+}
