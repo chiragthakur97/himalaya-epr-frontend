@@ -1,0 +1,31 @@
+<div class="layout-root">
+  <!-- Mobile overlay -->
+  @if (isMobile() && sidebarOpen()) {
+    <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+  }
+
+  <!-- Sidebar -->
+  <aside
+    class="layout-sidebar"
+    [class.mobile-sidebar]="isMobile()"
+    [class.mobile-open]="isMobile() && sidebarOpen()"
+    [class.mobile-closed]="isMobile() && !sidebarOpen()"
+    [class.collapsed]="!isMobile() && sidebarCollapsed()"
+  >
+    <app-sidebar
+      [collapsed]="!isMobile() && sidebarCollapsed()"
+      (closeSidebar)="closeSidebar()"
+    />
+  </aside>
+
+  <!-- Main content -->
+  <div class="layout-main" [class.sidebar-collapsed]="!isMobile() && sidebarCollapsed()">
+    <app-header
+      [sidebarCollapsed]="sidebarCollapsed()"
+      (toggleSidebar)="toggleSidebar()"
+    />
+    <main class="layout-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>
