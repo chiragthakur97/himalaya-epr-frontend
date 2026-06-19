@@ -1,0 +1,87 @@
+<nav class="sidebar" [class.collapsed]="collapsed()">
+  <!-- Logo -->
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <mat-icon>storefront</mat-icon>
+    </div>
+    @if (!collapsed()) {
+      <div class="brand-text">
+        <span class="brand-name">Himalaya</span>
+        <span class="brand-sub">Traders ERP</span>
+      </div>
+    }
+  </div>
+
+  <!-- Active Nav -->
+  <div class="nav-section">
+    @if (!collapsed()) {
+      <span class="nav-label">Main Menu</span>
+    }
+    @for (item of navItems; track item.route) {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        class="nav-item"
+        matRipple
+        [matTooltip]="collapsed() ? item.label : ''"
+        matTooltipPosition="right"
+        (click)="onLinkClick()"
+      >
+        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+        @if (!collapsed()) {
+          <span class="nav-text">{{ item.label }}</span>
+        }
+        @if (!collapsed() && item.badge) {
+          <span class="nav-badge">{{ item.badge }}</span>
+        }
+      </a>
+    }
+  </div>
+
+  <!-- Coming Soon -->
+  <div class="nav-section coming-soon-section">
+    @if (!collapsed()) {
+      <span class="nav-label">Modules</span>
+    }
+    @for (item of comingSoon; track item.route) {
+      <div
+        class="nav-item nav-item--disabled"
+        [matTooltip]="collapsed() ? item.label + ' (coming soon)' : 'Coming soon'"
+        matTooltipPosition="right"
+      >
+        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+        @if (!collapsed()) {
+          <span class="nav-text">{{ item.label }}</span>
+          <span class="coming-badge">Soon</span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Bottom -->
+  <div class="sidebar-bottom">
+    <div class="user-info" [class.collapsed]="collapsed()">
+      <div class="user-avatar">
+        <mat-icon>account_circle</mat-icon>
+      </div>
+      @if (!collapsed()) {
+        <div class="user-details">
+          <span class="user-name">{{ authService.user()?.full_name ?? authService.user()?.username }}</span>
+          <span class="user-role">{{ authService.user()?.role }}</span>
+        </div>
+      }
+    </div>
+    <button
+      class="logout-btn"
+      matRipple
+      (click)="logout()"
+      [matTooltip]="collapsed() ? 'Sign Out' : ''"
+      matTooltipPosition="right"
+    >
+      <mat-icon>logout</mat-icon>
+      @if (!collapsed()) {
+        <span>Sign Out</span>
+      }
+    </button>
+  </div>
+</nav>
