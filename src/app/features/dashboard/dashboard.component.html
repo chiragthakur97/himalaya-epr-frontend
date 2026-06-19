@@ -1,0 +1,218 @@
+<div class="dashboard">
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Welcome back! Here's what's happening today.</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="refresh()" [disabled]="loading()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="48" />
+      <p>Loading dashboard data…</p>
+    </div>
+  } @else {
+
+    <!-- Summary cards -->
+    <div class="summary-grid">
+      @for (card of summaryCards(); track card.title; let i = $index) {
+        <mat-card class="summary-card" [style.--card-color]="card.color">
+          <mat-card-content>
+            <div class="card-icon-wrap">
+              <mat-icon class="card-icon">{{ card.icon }}</mat-icon>
+            </div>
+            <div class="card-info">
+              <span class="card-label">{{ card.title }}</span>
+              <span class="card-value">
+                @if (card.prefix) { <span class="card-prefix">{{ card.prefix }}</span> }
+                {{ card.value | number }}
+              </span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    <!-- Charts row -->
+    <div class="charts-row">
+      <!-- Sales trend -->
+      <mat-card class="chart-card chart-card--large">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>show_chart</mat-icon>
+            Sales &amp; Collection Trend
+          </mat-card-title>
+          <mat-card-subtitle>Monthly overview for current year</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <canvas #salesChart></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Payment modes -->
+      <mat-card class="chart-card chart-card--small">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>donut_large</mat-icon>
+            Payment Modes
+          </mat-card-title>
+          <mat-card-subtitle>Collection breakdown</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container chart-container--donut">
+            <canvas #paymentChart></canvas>
+          </div>
+          <!-- Payment mode stats -->
+          <div class="payment-stats">
+            @for (mode of paymentModes(); track mode.mode) {
+              <div class="payment-stat-row">
+                <span class="payment-mode-label">{{ mode.mode }}</span>
+                <div class="payment-bar-wrap">
+                  <div class="payment-bar" [style.width.%]="mode.percentage"></div>
+                </div>
+                <span class="payment-amount">₹{{ mode.total_amount | number }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Tables row -->
+    <div class="tables-row">
+      <!-- Top customers -->
+      <mat-card class="table-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>star</mat-icon>
+            Top Customers
+          </mat-card-title>
+          <mat-card-subtitle>By total purchases this month</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="table-content">
+          <table mat-table [dataSource]="topCustomers()" class="data-table">
+            <ng-container matColumnDef="rank">
+              <th mat-header-cell *matHeaderCellDef>#</th>
+              <td mat-cell *matCellDef="let row; let i = index">
+                <span class="rank-badge" [ngClass]="'rank-' + (i + 1)">{{ i + 1 }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Customer</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="customer-cell">
+                  <div class="customer-avatar">{{ row.name[0] }}</div>
+                  <span class="customer-name">{{ row.name }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="total_purchases">
+              <th mat-header-cell *matHeaderCellDef>Purchases</th>
+              <td mat-cell *matCellDef="let row" class="amount-cell">
+                ₹{{ row.total_purchases | number }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="total_paid">
+              <th mat-header-cell *matHeaderCellDef>Paid</th>
+              <td mat-cell *matCellDef="let row" class="amount-cell text-success">
+                ₹{{ row.total_paid | number }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="outstanding">
+              <th mat-header-cell *matHeaderCellDef>Outstanding</th>
+              <td mat-cell *matCellDef="let row" [ngClass]="row.outstanding > 0 ? 'amount-cell text-danger' : 'amount-cell text-success'">
+                @if (row.outstanding > 0) {
+                  ₹{{ row.outstanding | number }}
+                } @else {
+                  <mat-icon class="check-icon">check_circle</mat-icon>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="customerColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: customerColumns;"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Top products -->
+      <mat-card class="table-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>inventory_2</mat-icon>
+            Top Products
+          </mat-card-title>
+          <mat-card-subtitle>By quantity sold this month</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="table-content">
+          <table mat-table [dataSource]="topProducts()" class="data-table">
+            <ng-container matColumnDef="rank">
+              <th mat-header-cell *matHeaderCellDef>#</th>
+              <td mat-cell *matCellDef="let row; let i = index">
+                <span class="rank-badge" [ngClass]="'rank-' + (i + 1)">{{ i + 1 }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Product</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="product-cell">
+                  <span class="product-name">{{ row.name }}</span>
+                  <span class="product-sku">{{ row.sku }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="sku">
+              <th mat-header-cell *matHeaderCellDef>SKU</th>
+              <td mat-cell *matCellDef="let row" class="sku-cell">{{ row.sku }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="quantity_sold">
+              <th mat-header-cell *matHeaderCellDef>Qty Sold</th>
+              <td mat-cell *matCellDef="let row" class="qty-cell">{{ row.quantity_sold | number }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="total_revenue">
+              <th mat-header-cell *matHeaderCellDef>Revenue</th>
+              <td mat-cell *matCellDef="let row" class="amount-cell">
+                ₹{{ row.total_revenue | number }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="stock">
+              <th mat-header-cell *matHeaderCellDef>Stock</th>
+              <td mat-cell *matCellDef="let row">
+                <span
+                  class="stock-badge"
+                  [ngClass]="row.current_stock < 20 ? 'stock-low' : 'stock-ok'"
+                  [matTooltip]="row.current_stock < 20 ? 'Low stock alert' : ''"
+                >
+                  {{ row.current_stock }}
+                  @if (row.current_stock < 20) {
+                    <mat-icon class="stock-warn-icon">warning</mat-icon>
+                  }
+                </span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="productColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: productColumns;"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  }
+</div>
