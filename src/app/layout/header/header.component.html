@@ -1,0 +1,76 @@
+<header class="app-header">
+  <div class="header-left">
+    <button
+      mat-icon-button
+      class="menu-btn"
+      (click)="onToggle()"
+      matTooltip="Toggle sidebar"
+    >
+      <mat-icon>{{ sidebarCollapsed() ? 'menu_open' : 'menu' }}</mat-icon>
+    </button>
+
+    <div class="page-breadcrumb">
+      <mat-icon class="breadcrumb-icon">dashboard</mat-icon>
+      <span class="breadcrumb-text">Dashboard</span>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <span class="date-display">
+      <mat-icon>calendar_today</mat-icon>
+      {{ today() | date: 'EEEE, d MMM y' }}
+    </span>
+
+    <button
+      mat-icon-button
+      matTooltip="Notifications"
+      [matBadge]="'3'"
+      matBadgeColor="warn"
+      matBadgeSize="small"
+    >
+      <mat-icon>notifications_none</mat-icon>
+    </button>
+
+    <button mat-icon-button matTooltip="Help">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+
+    <!-- User menu -->
+    <div class="user-chip" [matMenuTriggerFor]="userMenu">
+      <div class="user-avatar-sm">
+        <mat-icon>account_circle</mat-icon>
+      </div>
+      <div class="user-chip-info">
+        <span class="user-chip-name">
+          {{ authService.user()?.full_name ?? authService.user()?.username ?? 'User' }}
+        </span>
+        <span class="user-chip-role">{{ authService.user()?.role }}</span>
+      </div>
+      <mat-icon class="chevron">expand_more</mat-icon>
+    </div>
+
+    <mat-menu #userMenu="matMenu" class="user-dropdown">
+      <div class="menu-user-header">
+        <mat-icon class="menu-avatar">account_circle</mat-icon>
+        <div>
+          <p class="menu-name">{{ authService.user()?.full_name ?? authService.user()?.username }}</p>
+          <p class="menu-email">{{ authService.user()?.email }}</p>
+        </div>
+      </div>
+      <mat-divider />
+      <button mat-menu-item disabled>
+        <mat-icon>manage_accounts</mat-icon>
+        <span>Profile</span>
+      </button>
+      <button mat-menu-item disabled>
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </button>
+      <mat-divider />
+      <button mat-menu-item (click)="logout()" class="logout-menu-item">
+        <mat-icon>logout</mat-icon>
+        <span>Sign Out</span>
+      </button>
+    </mat-menu>
+  </div>
+</header>
