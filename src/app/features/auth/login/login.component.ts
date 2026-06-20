@@ -42,7 +42,7 @@ export class LoginComponent {
   readonly hidePassword = signal(true);
 
   readonly form = this.fb.nonNullable.group({
-    username: ['', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required,  Validators.email]],
     password: ['', [Validators.required, Validators.minLength(4)]],
   });
 
@@ -50,12 +50,18 @@ export class LoginComponent {
     if (this.form.invalid || this.loading()) return;
 
     this.loading.set(true);
-    const { username, password } = this.form.getRawValue();
+    const { email, password } = this.form.getRawValue();
 
-    this.authService.login({ username, password }).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
+    this.authService.login({ email, password }).subscribe({
+     next: (res) => {
+  console.log('LOGIN SUCCESS', res);
+
+  this.loading.set(false);
+
+  this.router.navigate(['/dashboard']).then(result => {
+    console.log('Navigation Result:', result);
+  });
+},
       error: (err) => {
         this.loading.set(false);
         const msg =

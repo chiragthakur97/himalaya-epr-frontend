@@ -27,17 +27,23 @@ export class AuthService {
   });
 
   login(credentials: LoginRequest) {
-    return this.http
-      .post<LoginResponse>(`${environment.apiUrl}/auth/login`, credentials)
-      .pipe(
-        tap(response => {
-          localStorage.setItem('ht_access_token', response.access_token);
-          localStorage.setItem('ht_user', JSON.stringify(response.user));
-          this._token.set(response.access_token);
-          this._user.set(response.user);
-        })
-      );
-  }
+  return this.http
+    .post<any>(`${environment.apiUrl}/auth/login`, credentials)
+    .pipe(
+      tap(response => {
+        const token = response.data.accessToken;
+        const user = response.data.user;
+
+        localStorage.setItem('ht_access_token', token);
+        localStorage.setItem('ht_user', JSON.stringify(user));
+
+        this._token.set(token);
+        this._user.set(user);
+
+        console.log('TOKEN SAVED', token);
+      })
+    );
+}
 
   logout(): void {
     localStorage.removeItem('ht_access_token');

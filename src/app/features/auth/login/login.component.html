@@ -44,18 +44,18 @@
           <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
             <mat-form-field appearance="outline">
-              <mat-label>Username</mat-label>
+              <mat-label>email</mat-label>
               <mat-icon matPrefix>person_outline</mat-icon>
               <input
                 matInput
-                formControlName="username"
-                placeholder="Enter your username"
-                autocomplete="username"
+                formControlName="email"
+                placeholder="Enter your email"
+                autocomplete="email"
               />
-              @if (form.get('username')?.hasError('required') && form.get('username')?.touched) {
-                <mat-error>Username is required</mat-error>
+              @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+                <mat-error>email is required</mat-error>
               }
-              @if (form.get('username')?.hasError('minlength') && form.get('username')?.touched) {
+              @if (form.get('email')?.hasError('minlength') && form.get('email')?.touched) {
                 <mat-error>Minimum 3 characters</mat-error>
               }
             </mat-form-field>
