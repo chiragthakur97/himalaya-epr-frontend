@@ -1,0 +1,47 @@
+<div class="feature-page">
+  <app-page-header
+    [title]="isEdit() ? 'Edit Category' : 'Add Category'"
+    [subtitle]="isEdit() ? 'Update category details' : 'Create a new product category'"
+    [breadcrumbs]="[
+      { label: 'Categories', route: '/product-categories' },
+      { label: isEdit() ? 'Edit' : 'Create' }
+    ]"
+  />
+
+  @if (loading()) {
+    <app-loading-spinner message="Loading category…" />
+  } @else {
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Category Name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. Cement, Steel, Paints" />
+              @if (form.controls.name.hasError('required')) {
+                <mat-error>Name is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description" rows="3"></textarea>
+            </mat-form-field>
+
+            <div class="full-width">
+              <mat-slide-toggle formControlName="isActive">Active</mat-slide-toggle>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button mat-button type="button" routerLink="/product-categories">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+              @if (saving()) { <mat-spinner diameter="20" /> }
+              @else { {{ isEdit() ? 'Update Category' : 'Create Category' }} }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

@@ -1,0 +1,159 @@
+<div class="feature-page">
+  <app-page-header
+    title="Create Sales Order"
+    subtitle="Add products and submit order"
+    [breadcrumbs]="[
+      { label: 'Sales Orders', route: '/sales-orders' },
+      { label: 'Create' }
+    ]"
+  />
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="order-layout">
+    <div class="order-left">
+      <mat-card>
+        <mat-card-header><mat-card-title>Customer</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <app-customer-autocomplete (customerSelected)="onCustomerSelected($event)" />
+          @if (selectedCustomer(); as c) {
+            <p class="customer-meta">Outstanding: {{ c.outstandingBalance | currencyInr }}</p>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="order-center">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Order Items</mat-card-title>
+          <button mat-icon-button type="button" matTooltip="Add product via search below">
+            <mat-icon>info</mat-icon>
+          </button>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Add Product</mat-label>
+            <input
+              matInput
+              [value]="productSearch()"
+              (input)="searchProducts($any($event.target).value)"
+              placeholder="Search product to add…"
+            />
+          </mat-form-field>
+          @if (productOptions().length) {
+            <div class="product-suggestions">
+              @for (p of productOptions(); track p.id) {
+                <button type="button" class="suggestion" (click)="addProduct(p)">
+                  {{ p.name }} — Stock: {{ p.currentStock }} — {{ p.sellingPrice | currencyInr }}
+                </button>
+              }
+            </div>
+          }
+
+          <table mat-table [dataSource]="items()" class="items-table">
+            <ng-container matColumnDef="product">
+              <th mat-header-cell *matHeaderCellDef>Product</th>
+              <td mat-cell *matCellDef="let row">{{ row.productName }}</td>
+            </ng-container>
+            <ng-container matColumnDef="quantity">
+              <th mat-header-cell *matHeaderCellDef>Qty</th>
+              <td mat-cell *matCellDef="let row; let i = index">
+                <input type="number" class="inline-input" [value]="row.quantity" min="1"
+                  (change)="updateItem(i, 'quantity', +$any($event.target).value)" />
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="unitPrice">
+              <th mat-header-cell *matHeaderCellDef>Unit Price</th>
+              <td mat-cell *matCellDef="let row; let i = index">
+                <input type="number" class="inline-input" [value]="row.unitPrice" min="0"
+                  (change)="updateItem(i, 'unitPrice', +$any($event.target).value)" />
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="lineTotal">
+              <th mat-header-cell *matHeaderCellDef>Line Total</th>
+              <td mat-cell *matCellDef="let row">{{ lineTotal(row) | currencyInr }}</td>
+            </ng-container>
+            <ng-container matColumnDef="stock">
+              <th mat-header-cell *matHeaderCellDef>Stock</th>
+              <td mat-cell *matCellDef="let row" [class.text-danger]="row.quantity > row.currentStock">
+                {{ row.currentStock }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row; let i = index">
+                <button mat-icon-button type="button" color="warn" (click)="removeItem(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="itemColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: itemColumns"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="order-right">
+      <mat-card class="summary-card">
+        <mat-card-header><mat-card-title>Summary</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <div class="summary-row"><span>Subtotal</span><span>{{ subtotal() | currencyInr }}</span></div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Discount (₹)</mat-label>
+            <input matInput type="number" formControlName="discountAmount" min="0" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Tax (₹)</mat-label>
+            <input matInput type="number" formControlName="taxAmount" min="0" />
+          </mat-form-field>
+
+          <div class="summary-row grand"><span>Grand Total</span><span>{{ grandTotal() | currencyInr }}</span></div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Order Status</mat-label>
+            <mat-select formControlName="orderStatus">
+              @for (s of orderStatuses; track s) {
+                <mat-option [value]="s">{{ s }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes" rows="2"></textarea>
+          </mat-form-field>
+
+          <mat-slide-toggle formControlName="includePayment">Record payment now</mat-slide-toggle>
+
+          @if (form.controls.includePayment.value) {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Payment Amount</mat-label>
+              <input matInput type="number" formControlName="paymentAmount" min="0" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Payment Mode</mat-label>
+              <mat-select formControlName="paymentMode">
+                @for (m of paymentModes; track m) {
+                  <mat-option [value]="m">{{ m }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Transaction Reference</mat-label>
+              <input matInput formControlName="transactionReference" />
+            </mat-form-field>
+          }
+
+          <div class="form-actions">
+            <button mat-button type="button" routerLink="/sales-orders">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+              @if (saving()) { <mat-spinner diameter="20" /> } @else { Create Order }
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </form>
+</div>

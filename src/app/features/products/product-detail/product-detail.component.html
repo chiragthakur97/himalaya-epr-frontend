@@ -1,0 +1,77 @@
+<div class="feature-page">
+  @if (loading()) {
+    <app-loading-spinner message="Loading product…" />
+  } @else if (product(); as p) {
+    <app-page-header
+      [title]="p.name"
+      [subtitle]="p.productCode"
+      [breadcrumbs]="[
+        { label: 'Products', route: '/products' },
+        { label: p.name }
+      ]"
+    >
+      <button actions mat-flat-button color="primary" [routerLink]="['/products', p.id, 'edit']">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+    </app-page-header>
+
+    <mat-tab-group animationDuration="200ms">
+      <mat-tab label="Overview">
+        <div class="tab-content">
+          <div class="detail-grid">
+            <section class="detail-section">
+              <h3><mat-icon>inventory_2</mat-icon> Product Details</h3>
+              <div class="detail-row"><span class="label">Code</span><span class="value">{{ p.productCode }}</span></div>
+              <div class="detail-row"><span class="label">SKU</span><span class="value">{{ p.sku ?? '—' }}</span></div>
+              <div class="detail-row"><span class="label">Brand</span><span class="value">{{ p.brand ?? '—' }}</span></div>
+              <div class="detail-row"><span class="label">Category</span><span class="value">{{ p.category?.name ?? p.categoryId }}</span></div>
+              <div class="detail-row"><span class="label">Unit</span><span class="value">{{ p.unit?.name ?? p.unitId }}</span></div>
+              <div class="detail-row"><span class="label">GST</span><span class="value">{{ p.gstPercentage }}%</span></div>
+              <div class="detail-row">
+                <span class="label">Status</span>
+                <span class="value"><app-status-chip [status]="p.isActive ? 'ACTIVE' : 'INACTIVE'" /></span>
+              </div>
+              @if (p.description) {
+                <div class="detail-row"><span class="label">Description</span><span class="value">{{ p.description }}</span></div>
+              }
+            </section>
+
+            <section class="detail-section">
+              <h3><mat-icon>payments</mat-icon> Pricing & Stock</h3>
+              <div class="financial-cards">
+                <app-summary-card title="Purchase Price" [value]="p.purchasePrice" icon="shopping_cart" color="#6a1b9a" prefix="₹" />
+                <app-summary-card title="Selling Price" [value]="p.sellingPrice" icon="sell" color="#3949ab" prefix="₹" />
+                <app-summary-card
+                  title="Current Stock"
+                  [value]="p.currentStock"
+                  icon="warehouse"
+                  [color]="isLowStock(p) ? '#c62828' : '#2e7d32'"
+                />
+                <app-summary-card title="Minimum Stock" [value]="p.minimumStock" icon="warning" color="#f57f17" />
+              </div>
+              @if (isLowStock(p)) {
+                <p class="low-stock-alert">
+                  <mat-icon>warning</mat-icon>
+                  Stock is at or below minimum level
+                </p>
+              }
+            </section>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Inventory History">
+        <div class="tab-content">
+          <app-data-table
+            [columns]="historyColumns"
+            [data]="inventoryHistory()"
+            [loading]="false"
+            [totalCount]="inventoryHistory().length"
+            emptyTitle="No inventory history"
+          />
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

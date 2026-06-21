@@ -1,0 +1,75 @@
+<div class="feature-page">
+  @if (loading()) {
+    <app-loading-spinner message="Loading customer…" />
+  } @else if (customer(); as c) {
+    <app-page-header
+      [title]="c.name"
+      [subtitle]="c.customerCode"
+      [breadcrumbs]="[
+        { label: 'Customers', route: '/customers' },
+        { label: c.name }
+      ]"
+    >
+      <button actions mat-stroked-button [routerLink]="['/customers', c.id, 'ledger']">
+        <mat-icon>receipt_long</mat-icon>
+        Full Ledger
+      </button>
+      <button actions mat-flat-button color="primary" [routerLink]="['/customers', c.id, 'edit']">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+    </app-page-header>
+
+    <div class="detail-grid">
+      <section class="detail-section">
+        <h3><mat-icon>person</mat-icon> Customer Information</h3>
+        <div class="detail-row"><span class="label">Code</span><span class="value">{{ c.customerCode }}</span></div>
+        <div class="detail-row"><span class="label">Mobile</span><span class="value">{{ c.mobile }}</span></div>
+        @if (c.alternateMobile) {
+          <div class="detail-row"><span class="label">Alt. Mobile</span><span class="value">{{ c.alternateMobile }}</span></div>
+        }
+        <div class="detail-row"><span class="label">Email</span><span class="value">{{ c.email ?? '—' }}</span></div>
+        <div class="detail-row"><span class="label">Address</span><span class="value">{{ c.address ?? '—' }}</span></div>
+        <div class="detail-row"><span class="label">GST</span><span class="value">{{ c.gstNumber ?? '—' }}</span></div>
+        <div class="detail-row">
+          <span class="label">Status</span>
+          <span class="value"><app-status-chip [status]="c.isActive ? 'ACTIVE' : 'INACTIVE'" /></span>
+        </div>
+        @if (c.notes) {
+          <div class="detail-row"><span class="label">Notes</span><span class="value">{{ c.notes }}</span></div>
+        }
+      </section>
+
+      <section class="detail-section">
+        <h3><mat-icon>account_balance_wallet</mat-icon> Financial Summary</h3>
+        <div class="financial-cards">
+          <app-summary-card
+            title="Outstanding Balance"
+            [value]="c.outstandingBalance"
+            icon="account_balance_wallet"
+            color="#e65100"
+            prefix="₹"
+          />
+          <app-summary-card
+            title="Credit Limit"
+            [value]="c.creditLimit"
+            icon="credit_score"
+            color="#3949ab"
+            prefix="₹"
+          />
+        </div>
+      </section>
+    </div>
+
+    <section class="detail-section ledger-section">
+      <h3><mat-icon>receipt_long</mat-icon> Recent Ledger Entries</h3>
+      <app-data-table
+        [columns]="ledgerColumns"
+        [data]="ledgerEntries()"
+        [loading]="false"
+        [totalCount]="ledgerEntries().length"
+        emptyTitle="No ledger entries"
+      />
+    </section>
+  }
+</div>

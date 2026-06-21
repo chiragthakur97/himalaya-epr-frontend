@@ -1,0 +1,30 @@
+<div class="feature-page">
+  <app-page-header
+    [title]="customer()?.name ?? 'Customer Ledger'"
+    subtitle="Full account ledger"
+    [breadcrumbs]="[
+      { label: 'Customers', route: '/customers' },
+      { label: customer()?.name ?? 'Ledger', route: customer() ? '/customers/' + customerId : undefined },
+      { label: 'Ledger' }
+    ]"
+  >
+    <button actions mat-stroked-button [routerLink]="['/customers', customerId]">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Customer
+    </button>
+  </app-page-header>
+
+  @if (loading() && !entries().length) {
+    <app-loading-spinner message="Loading ledger…" />
+  } @else {
+    <app-data-table
+      [columns]="columns"
+      [data]="entries()"
+      [loading]="loading()"
+      [totalCount]="total()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      emptyTitle="No ledger entries"
+    />
+  }
+</div>

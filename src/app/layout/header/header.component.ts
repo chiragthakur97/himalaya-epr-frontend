@@ -14,6 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { getUserDisplayName, getUserRoleName } from '../../core/interfaces/auth.interface';
 
 @Component({
   selector: 'app-header',
@@ -37,6 +38,9 @@ export class HeaderComponent {
 
   readonly authService = inject(AuthService);
   readonly today = signal(new Date());
+
+  displayName = () => getUserDisplayName(this.authService.user());
+  roleName = () => getUserRoleName(this.authService.user());
 
   onToggle(): void {
     this.toggleSidebar.emit();

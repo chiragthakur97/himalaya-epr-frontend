@@ -2,6 +2,7 @@ import {
   Component,
   input,
   output,
+  computed,
   ChangeDetectionStrategy,
   inject,
 } from '@angular/core';
@@ -10,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
+import { getUserDisplayName, getUserRoleName } from '../../core/interfaces/auth.interface';
 
 export interface NavItem {
   label: string;
@@ -32,19 +34,31 @@ export class SidebarComponent {
 
   readonly authService = inject(AuthService);
 
+  readonly isAdmin = computed(() => getUserRoleName(this.authService.user()).toUpperCase() === 'ADMIN');
+
   readonly navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
+    { label: 'Customers', icon: 'people', route: '/customers' },
+    { label: 'Products', icon: 'inventory_2', route: '/products' },
+    { label: 'Categories', icon: 'category', route: '/product-categories' },
+    { label: 'Inventory', icon: 'warehouse', route: '/inventory/history' },
+    { label: 'Sales Orders', icon: 'receipt_long', route: '/sales-orders' },
+    { label: 'Payments', icon: 'payments', route: '/payments' },
   ];
 
-  readonly comingSoon: NavItem[] = [
-    { label: 'Customers',    icon: 'people',           route: '/customers'   },
-    { label: 'Products',     icon: 'inventory_2',      route: '/products'    },
-    { label: 'Inventory',    icon: 'warehouse',        route: '/inventory'   },
-    { label: 'Sales Orders', icon: 'receipt_long',     route: '/sales'       },
-    { label: 'Payments',     icon: 'payments',         route: '/payments'    },
-    { label: 'Reports',      icon: 'bar_chart',        route: '/reports'     },
-    { label: 'Settings',     icon: 'settings',         route: '/settings'    },
+  readonly adminNavItems: NavItem[] = [
+    { label: 'Users', icon: 'manage_accounts', route: '/users' },
   ];
+
+  readonly inventorySubItems: NavItem[] = [
+    { label: 'History', icon: 'history', route: '/inventory/history' },
+    { label: 'Add Stock', icon: 'add', route: '/inventory/add-stock' },
+    { label: 'Remove Stock', icon: 'remove', route: '/inventory/remove-stock' },
+    { label: 'Adjust Stock', icon: 'tune', route: '/inventory/adjust-stock' },
+  ];
+
+  displayName = () => getUserDisplayName(this.authService.user());
+  roleName = () => getUserRoleName(this.authService.user());
 
   onLinkClick(): void {
     this.closeSidebar.emit();

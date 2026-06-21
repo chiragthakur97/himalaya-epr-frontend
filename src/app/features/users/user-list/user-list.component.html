@@ -1,0 +1,18 @@
+<div class="feature-page">
+  <app-page-header title="Users" subtitle="Manage system users (Admin only)">
+    <button actions mat-flat-button color="primary" routerLink="/users/create">
+      <mat-icon>person_add</mat-icon>
+      Add User
+    </button>
+  </app-page-header>
+
+  <app-data-table
+    [columns]="columns"
+    [data]="users()"
+    [loading]="loading()"
+    [totalCount]="users().length"
+    [actions]="actions"
+    emptyTitle="No users found"
+    (actionClick)="onAction($event)"
+  />
+</div>

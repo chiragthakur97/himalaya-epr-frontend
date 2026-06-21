@@ -1,0 +1,38 @@
+.data-table-wrap {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+
+  th {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  td {
+    font-size: 14px;
+    color: #374151;
+    white-space: nowrap;
+  }
+
+  tr.clickable {
+    cursor: pointer;
+    &:hover { background: #f9fafb; }
+  }
+}
+
+mat-paginator {
+  border-top: 1px solid #f0f0f0;
+}

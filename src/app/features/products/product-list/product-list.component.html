@@ -1,0 +1,37 @@
+<div class="feature-page">
+  <app-page-header title="Products" subtitle="Manage product catalog and pricing">
+    <button actions mat-stroked-button routerLink="/product-categories">
+      <mat-icon>category</mat-icon>
+      Categories
+    </button>
+    <button actions mat-stroked-button routerLink="/products/low-stock">
+      <mat-icon>warning</mat-icon>
+      Low Stock
+    </button>
+    <button actions mat-flat-button color="primary" routerLink="/products/create">
+      <mat-icon>add</mat-icon>
+      Add Product
+    </button>
+  </app-page-header>
+
+  <app-search-toolbar
+    searchPlaceholder="Search by name, SKU, or code…"
+    [showStatusFilter]="true"
+    (searchChange)="onSearch($event)"
+    (statusChange)="onStatusChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
+  <app-data-table
+    [columns]="columns"
+    [data]="products()"
+    [loading]="loading()"
+    [totalCount]="total()"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
+    [actions]="actions"
+    emptyTitle="No products found"
+    (pageChange)="onPage($event)"
+    (actionClick)="onAction($event)"
+  />
+</div>

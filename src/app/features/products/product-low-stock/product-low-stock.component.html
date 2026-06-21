@@ -1,0 +1,28 @@
+<div class="feature-page">
+  <app-page-header
+    title="Low Stock Products"
+    subtitle="Products at or below minimum stock level"
+    [breadcrumbs]="[
+      { label: 'Products', route: '/products' },
+      { label: 'Low Stock' }
+    ]"
+  >
+    <button actions mat-stroked-button routerLink="/products">
+      <mat-icon>arrow_back</mat-icon>
+      All Products
+    </button>
+  </app-page-header>
+
+  @if (loading()) {
+    <app-loading-spinner message="Loading low stock products…" />
+  } @else {
+    <app-data-table
+      [columns]="columns"
+      [data]="products()"
+      [loading]="false"
+      [totalCount]="products().length"
+      emptyTitle="No low stock products"
+      emptyDescription="All products are above minimum stock levels."
+    />
+  }
+</div>

@@ -1,0 +1,6 @@
+@use '../../../shared/styles/feature-page';
+
+:host ::ng-deep .text-danger {
+  color: #c62828 !important;
+  font-weight: 600;
+}

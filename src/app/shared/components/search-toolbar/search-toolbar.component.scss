@@ -1,0 +1,21 @@
+.search-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.search-field {
+  flex: 1 1 220px;
+  min-width: 200px;
+}
+
+.filter-field, .date-field {
+  flex: 0 1 160px;
+  min-width: 140px;
+}
+
+mat-form-field {
+  margin: 0;
+}

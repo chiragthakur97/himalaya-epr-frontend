@@ -41,10 +41,8 @@
         <mat-icon>account_circle</mat-icon>
       </div>
       <div class="user-chip-info">
-        <span class="user-chip-name">
-          {{ authService.user()?.full_name ?? authService.user()?.username ?? 'User' }}
-        </span>
-        <span class="user-chip-role">{{ authService.user()?.role }}</span>
+        <span class="user-chip-name">{{ displayName() }}</span>
+        <span class="user-chip-role">{{ roleName() }}</span>
       </div>
       <mat-icon class="chevron">expand_more</mat-icon>
     </div>
@@ -53,7 +51,7 @@
       <div class="menu-user-header">
         <mat-icon class="menu-avatar">account_circle</mat-icon>
         <div>
-          <p class="menu-name">{{ authService.user()?.full_name ?? authService.user()?.username }}</p>
+          <p class="menu-name">{{ displayName() }}</p>
           <p class="menu-email">{{ authService.user()?.email }}</p>
         </div>
       </div>

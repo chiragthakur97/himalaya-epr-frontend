@@ -1,0 +1,29 @@
+<div class="feature-page">
+  <app-page-header title="Customers" subtitle="Manage customer accounts and credit limits">
+    <button actions mat-flat-button color="primary" routerLink="/customers/create">
+      <mat-icon>add</mat-icon>
+      Add Customer
+    </button>
+  </app-page-header>
+
+  <app-search-toolbar
+    searchPlaceholder="Search by name, mobile, or code…"
+    [showStatusFilter]="true"
+    (searchChange)="onSearch($event)"
+    (statusChange)="onStatusChange($event)"
+    (clearFilters)="onClearFilters()"
+  />
+
+  <app-data-table
+    [columns]="columns"
+    [data]="customers()"
+    [loading]="loading()"
+    [totalCount]="total()"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
+    [actions]="actions"
+    emptyTitle="No customers found"
+    (pageChange)="onPage($event)"
+    (actionClick)="onAction($event)"
+  />
+</div>

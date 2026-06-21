@@ -1,0 +1,63 @@
+<div class="feature-page">
+  <app-page-header
+    title="Record Payment"
+    subtitle="Apply payment against customer or order"
+    [breadcrumbs]="[
+      { label: 'Payments', route: '/payments' },
+      { label: 'Create' }
+    ]"
+  />
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <app-customer-autocomplete (customerSelected)="onCustomerSelected($event)" />
+
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Sales Order (optional)</mat-label>
+            <mat-select formControlName="salesOrderId" (selectionChange)="onOrderSelected($event.value)">
+              <mat-option value="">— No specific order —</mat-option>
+              @for (o of customerOrders(); track o.id) {
+                <mat-option [value]="o.id">
+                  {{ o.orderNumber }} — Outstanding: {{ o.outstandingAmount | currencyInr }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Amount (₹)</mat-label>
+            <input matInput type="number" formControlName="amount" min="1" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Payment Mode</mat-label>
+            <mat-select formControlName="paymentMode">
+              @for (m of paymentModes; track m) {
+                <mat-option [value]="m">{{ m }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Transaction Reference</mat-label>
+            <input matInput formControlName="transactionReference" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes" rows="2"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" routerLink="/payments">Cancel</button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+            @if (saving()) { <mat-spinner diameter="20" /> } @else { Record Payment }
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

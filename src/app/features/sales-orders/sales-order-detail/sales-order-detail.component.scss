@@ -1,0 +1,30 @@
+@use '../../../shared/styles/feature-page';
+
+.tab-content { padding-top: 16px; }
+
+.status-select {
+  min-width: 160px;
+  margin: 0;
+}
+
+.items-table { width: 100%; background: #fff; border-radius: 12px; }
+
+.empty-msg { color: #6b7280; padding: 24px; }
+
+.invoice-tab {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.invoice-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.invoice-hint {
+  font-size: 13px;
+  color: #6b7280;
+}

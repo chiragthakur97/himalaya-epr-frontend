@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { LoginRequest, LoginResponse, User } from '../interfaces/auth.interface';
+import { ApiResponse } from '../interfaces/api.interface';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -27,23 +28,25 @@ export class AuthService {
   });
 
   login(credentials: LoginRequest) {
-  return this.http
-    .post<any>(`${environment.apiUrl}/auth/login`, credentials)
-    .pipe(
-      tap(response => {
-        const token = response.data.accessToken;
-        const user = response.data.user;
+    return this.http
+      .post<ApiResponse<LoginResponse>>(`${environment.apiUrl}/auth/login`, credentials)
+      .pipe(
+        tap(response => {
+          const token = response.data.accessToken;
+          const user = response.data.user;
 
-        localStorage.setItem('ht_access_token', token);
-        localStorage.setItem('ht_user', JSON.stringify(user));
+          localStorage.setItem('ht_access_token', token);
+          localStorage.setItem('ht_user', JSON.stringify(user));
 
-        this._token.set(token);
-        this._user.set(user);
+          this._token.set(token);
+          this._user.set(user);
+        })
+      );
+  }
 
-        console.log('TOKEN SAVED', token);
-      })
-    );
-}
+  getProfile() {
+    return this.http.get<User>(`${environment.apiUrl}/auth/profile`);
+  }
 
   logout(): void {
     localStorage.removeItem('ht_access_token');

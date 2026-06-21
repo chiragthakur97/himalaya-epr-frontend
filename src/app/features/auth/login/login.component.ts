@@ -53,15 +53,10 @@ export class LoginComponent {
     const { email, password } = this.form.getRawValue();
 
     this.authService.login({ email, password }).subscribe({
-     next: (res) => {
-  console.log('LOGIN SUCCESS', res);
-
-  this.loading.set(false);
-
-  this.router.navigate(['/dashboard']).then(result => {
-    console.log('Navigation Result:', result);
-  });
-},
+      next: () => {
+        this.loading.set(false);
+        this.router.navigate(['/dashboard']);
+      },
       error: (err) => {
         this.loading.set(false);
         const msg =

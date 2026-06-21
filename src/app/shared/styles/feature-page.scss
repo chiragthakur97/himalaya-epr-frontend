@@ -1,0 +1,88 @@
+.feature-page {
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    padding: 16px;
+  }
+}
+
+.form-card {
+  border-radius: 12px !important;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width { grid-column: 1 / -1; }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 8px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+
+  h3 {
+    margin: 0 0 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a237e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 14px;
+
+  &:last-child { border-bottom: none; }
+
+  .label { color: #6b7280; }
+  .value { font-weight: 500; color: #374151; text-align: right; }
+}
+
+.financial-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}

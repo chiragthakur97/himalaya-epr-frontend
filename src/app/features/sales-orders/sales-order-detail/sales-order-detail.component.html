@@ -1,0 +1,122 @@
+<div class="feature-page">
+  @if (loading()) {
+    <app-loading-spinner message="Loading order…" />
+  } @else if (order(); as o) {
+    <app-page-header
+      [title]="o.orderNumber"
+      [subtitle]="'Order date: ' + (o.orderDate | dateFormat)"
+      [breadcrumbs]="[
+        { label: 'Sales Orders', route: '/sales-orders' },
+        { label: o.orderNumber }
+      ]"
+    >
+      <mat-form-field actions appearance="outline" class="status-select">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="o.orderStatus" [disabled]="statusUpdating()" (selectionChange)="updateStatus($event.value)">
+          @for (s of orderStatuses; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </app-page-header>
+
+    <mat-tab-group animationDuration="200ms">
+      <mat-tab label="Summary">
+        <div class="tab-content detail-grid">
+          <section class="detail-section">
+            <h3>Order Info</h3>
+            <div class="detail-row"><span class="label">Customer</span><span class="value">{{ o.customer?.name ?? o.customerId }}</span></div>
+            <div class="detail-row"><span class="label">Order Status</span><span class="value"><app-status-chip [status]="o.orderStatus" /></span></div>
+            <div class="detail-row"><span class="label">Payment Status</span><span class="value"><app-status-chip [status]="o.paymentStatus" /></span></div>
+            @if (o.notes) {
+              <div class="detail-row"><span class="label">Notes</span><span class="value">{{ o.notes }}</span></div>
+            }
+          </section>
+          <section class="detail-section">
+            <h3>Amounts</h3>
+            <div class="detail-row"><span class="label">Subtotal</span><span class="value">{{ (o.subtotal ?? o.totalAmount) | currencyInr }}</span></div>
+            <div class="detail-row"><span class="label">Discount</span><span class="value">{{ o.discountAmount | currencyInr }}</span></div>
+            <div class="detail-row"><span class="label">Tax</span><span class="value">{{ o.taxAmount | currencyInr }}</span></div>
+            <div class="detail-row"><span class="label">Total</span><span class="value">{{ o.totalAmount | currencyInr }}</span></div>
+            <div class="detail-row"><span class="label">Paid</span><span class="value">{{ o.paidAmount | currencyInr }}</span></div>
+            <div class="detail-row"><span class="label">Outstanding</span><span class="value">{{ o.outstandingAmount | currencyInr }}</span></div>
+          </section>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Items">
+        <div class="tab-content">
+          <table mat-table [dataSource]="o.items" class="items-table">
+            <ng-container matColumnDef="product">
+              <th mat-header-cell *matHeaderCellDef>Product</th>
+              <td mat-cell *matCellDef="let item">{{ item.product?.name ?? item.productId }}</td>
+            </ng-container>
+            <ng-container matColumnDef="quantity">
+              <th mat-header-cell *matHeaderCellDef>Qty</th>
+              <td mat-cell *matCellDef="let item">{{ item.quantity }}</td>
+            </ng-container>
+            <ng-container matColumnDef="unitPrice">
+              <th mat-header-cell *matHeaderCellDef>Unit Price</th>
+              <td mat-cell *matCellDef="let item">{{ item.unitPrice | currencyInr }}</td>
+            </ng-container>
+            <ng-container matColumnDef="lineTotal">
+              <th mat-header-cell *matHeaderCellDef>Line Total</th>
+              <td mat-cell *matCellDef="let item">{{ (item.lineTotal ?? item.quantity * item.unitPrice) | currencyInr }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="itemColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: itemColumns"></tr>
+          </table>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Payments">
+        <div class="tab-content">
+          @if (o.payments?.length) {
+            <table mat-table [dataSource]="o.payments!" class="items-table">
+              <ng-container matColumnDef="amount">
+                <th mat-header-cell *matHeaderCellDef>Amount</th>
+                <td mat-cell *matCellDef="let p">{{ p.amount | currencyInr }}</td>
+              </ng-container>
+              <ng-container matColumnDef="paymentMode">
+                <th mat-header-cell *matHeaderCellDef>Mode</th>
+                <td mat-cell *matCellDef="let p"><app-status-chip [status]="p.paymentMode" /></td>
+              </ng-container>
+              <ng-container matColumnDef="transactionReference">
+                <th mat-header-cell *matHeaderCellDef>Reference</th>
+                <td mat-cell *matCellDef="let p">{{ p.transactionReference ?? '—' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="createdAt">
+                <th mat-header-cell *matHeaderCellDef>Date</th>
+                <td mat-cell *matCellDef="let p">{{ p.createdAt | dateFormat }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="paymentColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: paymentColumns"></tr>
+            </table>
+          } @else {
+            <p class="empty-msg">No payments recorded for this order.</p>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Invoice">
+        <div class="tab-content invoice-tab">
+          <div class="invoice-actions">
+            <button mat-flat-button color="primary" (click)="viewInvoice()">
+              <mat-icon>visibility</mat-icon>
+              View Invoice
+            </button>
+            <button mat-stroked-button (click)="downloadInvoice()">
+              <mat-icon>download</mat-icon>
+              Download PDF
+            </button>
+            <button mat-stroked-button (click)="printInvoice()">
+              <mat-icon>print</mat-icon>
+              Print
+            </button>
+          </div>
+          <p class="invoice-hint">Invoice opens in a new tab with your authenticated session.</p>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

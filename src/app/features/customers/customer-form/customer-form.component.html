@@ -1,0 +1,93 @@
+<div class="feature-page">
+  <app-page-header
+    [title]="isEdit() ? 'Edit Customer' : 'Add Customer'"
+    [subtitle]="isEdit() ? 'Update customer details' : 'Create a new customer account'"
+    [breadcrumbs]="[
+      { label: 'Customers', route: '/customers' },
+      { label: isEdit() ? 'Edit' : 'Create' }
+    ]"
+  />
+
+  @if (loading()) {
+    <app-loading-spinner message="Loading customer…" />
+  } @else {
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" />
+              @if (form.controls.name.hasError('required')) {
+                <mat-error>Name is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Mobile</mat-label>
+              <input matInput formControlName="mobile" maxlength="10" />
+              @if (form.controls.mobile.hasError('required')) {
+                <mat-error>Mobile is required</mat-error>
+              }
+              @if (form.controls.mobile.hasError('pattern')) {
+                <mat-error>Enter 10-digit mobile number</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Alternate Mobile</mat-label>
+              <input matInput formControlName="alternateMobile" maxlength="10" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Address</mat-label>
+              <textarea matInput formControlName="address" rows="2"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>GST Number</mat-label>
+              <input matInput formControlName="gstNumber" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Credit Limit (₹)</mat-label>
+              <input matInput type="number" formControlName="creditLimit" min="0" />
+            </mat-form-field>
+
+            @if (!isEdit()) {
+              <mat-form-field appearance="outline">
+                <mat-label>Opening Balance (₹)</mat-label>
+                <input matInput type="number" formControlName="openingBalance" min="0" />
+              </mat-form-field>
+            }
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Notes</mat-label>
+              <textarea matInput formControlName="notes" rows="2"></textarea>
+            </mat-form-field>
+
+            <div class="full-width">
+              <mat-slide-toggle formControlName="isActive">Active</mat-slide-toggle>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button mat-button type="button" routerLink="/customers">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+              @if (saving()) {
+                <mat-spinner diameter="20" />
+              } @else {
+                {{ isEdit() ? 'Update Customer' : 'Create Customer' }}
+              }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

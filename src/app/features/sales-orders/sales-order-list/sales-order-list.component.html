@@ -1,0 +1,30 @@
+<div class="feature-page">
+  <app-page-header title="Sales Orders" subtitle="Manage orders and invoices">
+    <button actions mat-flat-button color="primary" routerLink="/sales-orders/create">
+      <mat-icon>add</mat-icon>
+      New Order
+    </button>
+  </app-page-header>
+
+  <app-search-toolbar
+    searchPlaceholder="Search order or customer…"
+    [showDateRange]="true"
+    (searchChange)="onSearch($event)"
+    (dateFromChange)="onDateFrom($event)"
+    (dateToChange)="onDateTo($event)"
+    (clearFilters)="onClear()"
+  />
+
+  <app-data-table
+    [columns]="columns"
+    [data]="orders()"
+    [loading]="loading()"
+    [totalCount]="total()"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
+    [actions]="actions"
+    emptyTitle="No sales orders"
+    (pageChange)="onPage($event)"
+    (actionClick)="onAction($event)"
+  />
+</div>

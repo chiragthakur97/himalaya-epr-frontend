@@ -1,5 +1,4 @@
 <nav class="sidebar" [class.collapsed]="collapsed()">
-  <!-- Logo -->
   <div class="sidebar-brand">
     <div class="brand-icon">
       <mat-icon>storefront</mat-icon>
@@ -12,7 +11,6 @@
     }
   </div>
 
-  <!-- Active Nav -->
   <div class="nav-section">
     @if (!collapsed()) {
       <span class="nav-label">Main Menu</span>
@@ -21,6 +19,7 @@
       <a
         [routerLink]="item.route"
         routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
         class="nav-item"
         matRipple
         [matTooltip]="collapsed() ? item.label : ''"
@@ -31,34 +30,34 @@
         @if (!collapsed()) {
           <span class="nav-text">{{ item.label }}</span>
         }
-        @if (!collapsed() && item.badge) {
-          <span class="nav-badge">{{ item.badge }}</span>
-        }
       </a>
     }
   </div>
 
-  <!-- Coming Soon -->
-  <div class="nav-section coming-soon-section">
-    @if (!collapsed()) {
-      <span class="nav-label">Modules</span>
-    }
-    @for (item of comingSoon; track item.route) {
-      <div
-        class="nav-item nav-item--disabled"
-        [matTooltip]="collapsed() ? item.label + ' (coming soon)' : 'Coming soon'"
-        matTooltipPosition="right"
-      >
-        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-        @if (!collapsed()) {
-          <span class="nav-text">{{ item.label }}</span>
-          <span class="coming-badge">Soon</span>
-        }
-      </div>
-    }
-  </div>
+  @if (isAdmin()) {
+    <div class="nav-section">
+      @if (!collapsed()) {
+        <span class="nav-label">Admin</span>
+      }
+      @for (item of adminNavItems; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          class="nav-item"
+          matRipple
+          [matTooltip]="collapsed() ? item.label : ''"
+          matTooltipPosition="right"
+          (click)="onLinkClick()"
+        >
+          <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+          @if (!collapsed()) {
+            <span class="nav-text">{{ item.label }}</span>
+          }
+        </a>
+      }
+    </div>
+  }
 
-  <!-- Bottom -->
   <div class="sidebar-bottom">
     <div class="user-info" [class.collapsed]="collapsed()">
       <div class="user-avatar">
@@ -66,8 +65,8 @@
       </div>
       @if (!collapsed()) {
         <div class="user-details">
-          <span class="user-name">{{ authService.user()?.full_name ?? authService.user()?.username }}</span>
-          <span class="user-role">{{ authService.user()?.role }}</span>
+          <span class="user-name">{{ displayName() }}</span>
+          <span class="user-role">{{ roleName() }}</span>
         </div>
       }
     </div>
