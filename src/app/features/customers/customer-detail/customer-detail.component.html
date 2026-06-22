@@ -14,7 +14,7 @@
         <mat-icon>receipt_long</mat-icon>
         Full Ledger
       </button>
-      <button actions mat-flat-button color="primary" [routerLink]="['/customers', c.id, 'edit']">
+      <button *appHasPermission="'customers.edit'" actions mat-flat-button color="primary" [routerLink]="['/customers', c.id, 'edit']">
         <mat-icon>edit</mat-icon>
         Edit
       </button>

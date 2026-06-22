@@ -18,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { UserService } from '../../../core/services/user.service';
+import { RoleService } from '../../../core/services/role.service';
 import { Role } from '../../../core/interfaces/user.interface';
 import { extractError } from '../../../core/utils/http.util';
 
@@ -45,6 +46,7 @@ import { extractError } from '../../../core/utils/http.util';
 export class UserFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(UserService);
+  private readonly roleService = inject(RoleService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -80,12 +82,8 @@ export class UserFormComponent implements OnInit {
   }
 
   private loadRoles(): void {
-    this.service.findAll().subscribe({
-      next: users => {
-        const roleMap = new Map<string, Role>();
-        users.forEach(u => roleMap.set(u.role.id, u.role));
-        this.availableRoles.set([...roleMap.values()]);
-      },
+    this.roleService.findAll().subscribe({
+      next: roles => this.availableRoles.set(roles),
       error: () => this.availableRoles.set([]),
     });
   }

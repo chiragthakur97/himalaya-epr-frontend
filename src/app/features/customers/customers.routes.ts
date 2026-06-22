@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { permissionGuard } from '../../core/guards/permission.guard';
 
 export const CUSTOMER_ROUTES: Routes = [
   {
@@ -8,6 +9,7 @@ export const CUSTOMER_ROUTES: Routes = [
   },
   {
     path: 'create',
+    canActivate: [permissionGuard('customers.create')],
     loadComponent: () =>
       import('./customer-form/customer-form.component').then(m => m.CustomerFormComponent),
   },
@@ -18,6 +20,7 @@ export const CUSTOMER_ROUTES: Routes = [
   },
   {
     path: ':id/edit',
+    canActivate: [permissionGuard('customers.edit')],
     loadComponent: () =>
       import('./customer-form/customer-form.component').then(m => m.CustomerFormComponent),
   },

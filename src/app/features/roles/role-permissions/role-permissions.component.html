@@ -1,0 +1,66 @@
+<div class="feature-page matrix-page">
+  @if (loading()) {
+    <app-loading-spinner label="Loading permission matrix…" />
+  } @else {
+    <app-page-header
+      [title]="role()?.name ?? 'Role Permissions'"
+      [subtitle]="role()?.description ?? 'Configure module access for this role'"
+    >
+      <button actions mat-stroked-button routerLink="/roles">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Roles
+      </button>
+      <button actions mat-flat-button color="primary" [disabled]="saving()" (click)="save()">
+        @if (saving()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+        Save Permissions
+      </button>
+    </app-page-header>
+
+    <div class="matrix-card card-elevation">
+      <div class="matrix-hint">
+        <mat-icon>info</mat-icon>
+        <span>
+          Selecting Delete auto-enables Edit, Create, and View. Unchecking View removes all actions for that module.
+        </span>
+      </div>
+
+      <div class="matrix-table-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>View</th>
+              <th>Create</th>
+              <th>Edit</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (mod of matrix(); track mod.module) {
+              <tr>
+                <td class="module-name">{{ mod.label }}</td>
+                @for (action of ['view', 'create', 'edit', 'delete']; track action) {
+                  <td class="matrix-cell">
+                    @if (isActionAvailable(mod, $any(action))) {
+                      <mat-checkbox
+                        [checked]="isChecked(mod, $any(action))"
+                        (change)="toggle(mod, $any(action), $event.checked)"
+                        [attr.aria-label]="mod.label + ' ' + action"
+                      />
+                    } @else {
+                      <span class="na">—</span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

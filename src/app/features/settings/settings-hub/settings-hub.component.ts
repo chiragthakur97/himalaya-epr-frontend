@@ -20,6 +20,8 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { AssetUploadComponent } from '../../../shared/components/asset-upload/asset-upload.component';
 import { SettingsService } from '../../../core/services/settings.service';
+import { PermissionService } from '../../../core/services/permission.service';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { BankAccount, CompanySettings } from '../../../core/interfaces/settings.interface';
 import { extractError } from '../../../core/utils/http.util';
 
@@ -42,6 +44,7 @@ import { extractError } from '../../../core/utils/http.util';
     PageHeaderComponent,
     LoadingSpinnerComponent,
     AssetUploadComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './settings-hub.component.html',
   styleUrl: './settings-hub.component.scss',
@@ -49,6 +52,7 @@ import { extractError } from '../../../core/utils/http.util';
 export class SettingsHubComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(SettingsService);
+  private readonly permissionService = inject(PermissionService);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly loading = signal(true);
@@ -119,6 +123,7 @@ export class SettingsHubComponent implements OnInit {
         this.settings.set(bundle.settings);
         this.bankAccounts.set(bundle.bankAccounts);
         this.patchForms(bundle.settings);
+        this.applyReadOnlyForms();
         this.loading.set(false);
       },
       error: err => {
@@ -160,6 +165,19 @@ export class SettingsHubComponent implements OnInit {
       currency: s.currency,
       timezone: s.timezone,
     });
+  }
+
+  private applyReadOnlyForms(): void {
+    if (this.permissionService.has('settings.edit')) return;
+    [
+      this.companyForm,
+      this.invoiceForm,
+      this.upiForm,
+      this.brandingForm,
+      this.termsForm,
+      this.systemForm,
+      this.bankForm,
+    ].forEach(form => form.disable({ emitEvent: false }));
   }
 
   saveCompany(): void {

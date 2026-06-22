@@ -1,0 +1,28 @@
+@use '../../../shared/styles/feature-page';
+
+.roles-page {
+  .roles-toolbar {
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .create-role-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+
+    .name-field {
+      flex: 1 1 220px;
+      min-width: 200px;
+    }
+
+    .desc-field {
+      flex: 2 1 280px;
+      min-width: 240px;
+    }
+  }
+}

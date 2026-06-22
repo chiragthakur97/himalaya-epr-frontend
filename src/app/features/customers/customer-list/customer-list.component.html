@@ -1,6 +1,6 @@
 <div class="feature-page">
   <app-page-header title="Customers" subtitle="Manage customer accounts and credit limits">
-    <button actions mat-flat-button color="primary" routerLink="/customers/create">
+    <button *appHasPermission="'customers.create'" actions mat-flat-button color="primary" routerLink="/customers/create">
       <mat-icon>add</mat-icon>
       Add Customer
     </button>
@@ -21,7 +21,7 @@
     [totalCount]="total()"
     [pageIndex]="pageIndex()"
     [pageSize]="pageSize()"
-    [actions]="actions"
+    [actions]="actions()"
     emptyTitle="No customers found"
     (pageChange)="onPage($event)"
     (actionClick)="onAction($event)"

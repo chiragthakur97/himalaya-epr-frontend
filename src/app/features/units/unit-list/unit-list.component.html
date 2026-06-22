@@ -1,6 +1,6 @@
 <div class="feature-page">
   <app-page-header title="Units of Measure" subtitle="Manage unit master data for products">
-    <button actions mat-flat-button color="primary" routerLink="/units/create">
+    <button *appHasPermission="'products.create'" actions mat-flat-button color="primary" routerLink="/units/create">
       <mat-icon>add</mat-icon>
       Add Unit
     </button>
@@ -11,7 +11,7 @@
     [data]="units()"
     [loading]="loading()"
     [totalCount]="units().length"
-    [actions]="actions"
+    [actions]="actions()"
     emptyTitle="No units found"
     emptyDescription="Create your first unit to use in the product form."
     (actionClick)="onAction($event)"

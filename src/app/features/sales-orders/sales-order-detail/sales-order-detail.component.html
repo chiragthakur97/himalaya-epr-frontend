@@ -10,14 +10,16 @@
         { label: o.orderNumber }
       ]"
     >
-      <mat-form-field actions appearance="outline" class="status-select">
-        <mat-label>Update status</mat-label>
-        <mat-select [value]="o.orderStatus" [disabled]="statusUpdating()" (selectionChange)="updateStatus($event.value)">
-          @for (s of orderStatuses; track s) {
-            <mat-option [value]="s">{{ formatOrderStatus(s) }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      @if (canEditOrder()) {
+        <mat-form-field actions appearance="outline" class="status-select">
+          <mat-label>Update status</mat-label>
+          <mat-select [value]="o.orderStatus" [disabled]="statusUpdating()" (selectionChange)="updateStatus($event.value)">
+            @for (s of orderStatuses; track s) {
+              <mat-option [value]="s">{{ formatOrderStatus(s) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
       <button actions mat-stroked-button (click)="viewInvoice()">
         <mat-icon>visibility</mat-icon>
         View Invoice
@@ -132,7 +134,7 @@
       <mat-card-header>
         <mat-card-title>Payments</mat-card-title>
         @if (o.outstandingAmount > 0) {
-          <button mat-stroked-button color="primary" routerLink="/payments/create" [queryParams]="{ salesOrderId: o.id }">
+          <button *appHasPermission="'payments.create'" mat-stroked-button color="primary" routerLink="/payments/create" [queryParams]="{ salesOrderId: o.id }">
             <mat-icon>add</mat-icon>
             Record Payment
           </button>
@@ -170,7 +172,7 @@
           />
           @if (o.outstandingAmount > 0) {
             <div class="empty-action">
-              <button mat-flat-button color="primary" routerLink="/payments/create" [queryParams]="{ salesOrderId: o.id }">
+              <button *appHasPermission="'payments.create'" mat-flat-button color="primary" routerLink="/payments/create" [queryParams]="{ salesOrderId: o.id }">
                 Record Payment
               </button>
             </div>

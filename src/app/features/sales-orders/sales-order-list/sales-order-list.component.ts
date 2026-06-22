@@ -17,6 +17,7 @@ import { SearchToolbarComponent, StatusOption } from '../../../shared/components
 import { DataTableComponent, TableColumn, TableAction } from '../../../shared/components/data-table/data-table.component';
 import { SummaryCardComponent } from '../../../shared/components/summary-card/summary-card.component';
 import { SalesOrderService } from '../../../core/services/sales-order.service';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { SalesOrder, OrderStatus, PaymentStatus } from '../../../core/interfaces/sales-order.interface';
 import { extractError } from '../../../core/utils/http.util';
 
@@ -34,6 +35,7 @@ import { extractError } from '../../../core/utils/http.util';
     SearchToolbarComponent,
     DataTableComponent,
     SummaryCardComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './sales-order-list.component.html',
   styleUrl: './sales-order-list.component.scss',

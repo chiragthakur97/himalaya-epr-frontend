@@ -26,6 +26,7 @@ import { SummaryCardComponent } from '../../../shared/components/summary-card/su
 import { StatusChipComponent } from '../../../shared/components/status-chip/status-chip.component';
 import { InventoryService } from '../../../core/services/inventory.service';
 import { ProductService } from '../../../core/services/product.service';
+import { PermissionService } from '../../../core/services/permission.service';
 import { InventoryHistoryRow } from '../../../core/interfaces/inventory.interface';
 import { Product } from '../../../core/interfaces/product.interface';
 import { extractError } from '../../../core/utils/http.util';
@@ -63,6 +64,7 @@ export class InventoryHubComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly inventoryService = inject(InventoryService);
   private readonly productService = inject(ProductService);
+  private readonly permissionService = inject(PermissionService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -83,6 +85,10 @@ export class InventoryHubComponent implements OnInit {
     const p = this.selectedProduct();
     return p ? p.currentStock <= p.minimumStock : false;
   });
+
+  canManageStock(): boolean {
+    return this.permissionService.has('inventory.create');
+  }
 
   countDelta(): number {
     const p = this.selectedProduct();

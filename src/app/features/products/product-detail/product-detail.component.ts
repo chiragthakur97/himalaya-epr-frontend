@@ -16,7 +16,9 @@ import { SummaryCardComponent } from '../../../shared/components/summary-card/su
 import { StatusChipComponent } from '../../../shared/components/status-chip/status-chip.component';
 import { DataTableComponent, TableColumn } from '../../../shared/components/data-table/data-table.component';
 import { ProductService } from '../../../core/services/product.service';
+import { PermissionService } from '../../../core/services/permission.service';
 import { Product, InventoryHistoryEntry } from '../../../core/interfaces/product.interface';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { extractError } from '../../../core/utils/http.util';
 import { mapInventoryHistoryRow } from '../../../core/utils/inventory.util';
 import { InventoryHistoryRow } from '../../../core/interfaces/inventory.interface';
@@ -36,12 +38,14 @@ import { InventoryHistoryRow } from '../../../core/interfaces/inventory.interfac
     SummaryCardComponent,
     StatusChipComponent,
     DataTableComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
 })
 export class ProductDetailComponent implements OnInit {
   private readonly service = inject(ProductService);
+  private readonly permissionService = inject(PermissionService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -99,5 +103,9 @@ export class ProductDetailComponent implements OnInit {
 
   isLowStock(p: Product): boolean {
     return p.currentStock <= p.minimumStock;
+  }
+
+  canManageStock(): boolean {
+    return this.permissionService.has('inventory.create');
   }
 }

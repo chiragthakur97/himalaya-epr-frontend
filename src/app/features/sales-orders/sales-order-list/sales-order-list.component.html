@@ -3,7 +3,7 @@
     title="Sales Orders"
     subtitle="Create bills, track payments, and download invoices"
   >
-    <button actions mat-flat-button color="primary" routerLink="/sales-orders/create">
+    <button *appHasPermission="'sales_orders.create'" actions mat-flat-button color="primary" routerLink="/sales-orders/create">
       <mat-icon>add</mat-icon>
       New Order
     </button>

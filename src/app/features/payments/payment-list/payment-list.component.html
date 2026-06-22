@@ -1,6 +1,6 @@
 <div class="feature-page">
   <app-page-header title="Payments" subtitle="Record and view customer payments">
-    <button actions mat-flat-button color="primary" routerLink="/payments/create">
+    <button *appHasPermission="'payments.create'" actions mat-flat-button color="primary" routerLink="/payments/create">
       <mat-icon>add</mat-icon>
       Record Payment
     </button>

@@ -25,9 +25,21 @@ export class UserService {
     return this.http.patch<AppUser | { data: AppUser }>(`${this.base}/${id}`, dto).pipe(unwrapData<AppUser>());
   }
 
+  resetPassword(id: string, password: string) {
+    return this.http
+      .patch<AppUser | { data: AppUser }>(`${this.base}/${id}/reset-password`, { password })
+      .pipe(unwrapData<AppUser>());
+  }
+
   deactivate(id: string) {
     return this.http
       .patch<AppUser | { data: AppUser }>(`${this.base}/${id}/deactivate`, {})
+      .pipe(unwrapData<AppUser>());
+  }
+
+  activate(id: string) {
+    return this.http
+      .patch<AppUser | { data: AppUser }>(`${this.base}/${id}/activate`, {})
       .pipe(unwrapData<AppUser>());
   }
 }

@@ -12,52 +12,38 @@
   </div>
 
   <div class="sidebar-nav-scroll">
-  <div class="nav-section">
-    @if (!collapsed()) {
-      <span class="nav-label">Main Menu</span>
-    }
-    @for (item of navItems; track item.route) {
-      <a
-        [routerLink]="item.route"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
-        class="nav-item"
-        matRipple
-        [matTooltip]="collapsed() ? item.label : ''"
-        matTooltipPosition="right"
-        (click)="onLinkClick()"
-      >
-        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-        @if (!collapsed()) {
-          <span class="nav-text">{{ item.label }}</span>
-        }
-      </a>
-    }
-  </div>
-
-  @if (canManageSettings() || isAdmin()) {
     <div class="nav-section">
       @if (!collapsed()) {
-        <span class="nav-label">Administration</span>
+        <span class="nav-label">Main Menu</span>
       }
-      @if (canManageSettings()) {
+      @if (menuEmpty()) {
+        <p class="nav-empty-hint">Loading menu…</p>
+      }
+      @for (item of navItems(); track item.route) {
         <a
-          routerLink="/settings"
+          [routerLink]="item.route"
           routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
           class="nav-item"
           matRipple
-          [matTooltip]="collapsed() ? 'Settings' : ''"
+          [matTooltip]="collapsed() ? item.label : ''"
           matTooltipPosition="right"
           (click)="onLinkClick()"
         >
-          <mat-icon class="nav-icon">settings</mat-icon>
+          <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
           @if (!collapsed()) {
-            <span class="nav-text">Settings</span>
+            <span class="nav-text">{{ item.label }}</span>
           }
         </a>
       }
-      @if (isAdmin()) {
-        @for (item of adminNavItems; track item.route) {
+    </div>
+
+    @if (showUsersRolesSection()) {
+      <div class="nav-section">
+        @if (!collapsed()) {
+          <span class="nav-label">Users & Roles</span>
+        }
+        @for (item of usersRolesItems(); track item.route) {
           <a
             [routerLink]="item.route"
             routerLinkActive="active"
@@ -73,10 +59,32 @@
             }
           </a>
         }
-      }
-    </div>
-  }
+      </div>
+    }
 
+    @if (showAdminSection()) {
+      <div class="nav-section">
+        @if (!collapsed()) {
+          <span class="nav-label">Administration</span>
+        }
+        @for (item of adminItems(); track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            class="nav-item"
+            matRipple
+            [matTooltip]="collapsed() ? item.label : ''"
+            matTooltipPosition="right"
+            (click)="onLinkClick()"
+          >
+            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+            @if (!collapsed()) {
+              <span class="nav-text">{{ item.label }}</span>
+            }
+          </a>
+        }
+      </div>
+    }
   </div>
 
   <div class="sidebar-bottom">

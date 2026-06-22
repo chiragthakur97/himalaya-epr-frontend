@@ -19,6 +19,8 @@ import { StatusChipComponent } from '../../../shared/components/status-chip/stat
 import { SummaryCardComponent } from '../../../shared/components/summary-card/summary-card.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { SalesOrderService } from '../../../core/services/sales-order.service';
+import { PermissionService } from '../../../core/services/permission.service';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { SalesOrder, OrderStatus } from '../../../core/interfaces/sales-order.interface';
 import { CurrencyInrPipe } from '../../../shared/pipes/currency-inr.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
@@ -45,12 +47,14 @@ import { formatOrderStatus, formatPaymentMode } from '../../../core/utils/sales-
     EmptyStateComponent,
     CurrencyInrPipe,
     DateFormatPipe,
+    HasPermissionDirective,
   ],
   templateUrl: './sales-order-detail.component.html',
   styleUrl: './sales-order-detail.component.scss',
 })
 export class SalesOrderDetailComponent implements OnInit {
   private readonly service = inject(SalesOrderService);
+  private readonly permissionService = inject(PermissionService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -123,5 +127,9 @@ export class SalesOrderDetailComponent implements OnInit {
 
   viewInvoice(): void {
     this.router.navigate(['/sales-orders', this.orderId, 'invoice']);
+  }
+
+  canEditOrder(): boolean {
+    return this.permissionService.has('sales_orders.edit');
   }
 }

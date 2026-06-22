@@ -1,0 +1,37 @@
+<div class="feature-page roles-page">
+  <app-page-header
+    title="Roles & Permissions"
+    subtitle="Create roles and assign module permissions through the permission matrix"
+  />
+
+  <div class="roles-toolbar card-elevation">
+    <app-search-toolbar
+      searchPlaceholder="Search roles by name or description…"
+      (searchChange)="onSearch($event)"
+    />
+    <form [formGroup]="createForm" class="create-role-form" *appHasPermission="'users.create'">
+      <mat-form-field appearance="outline" class="name-field">
+        <mat-label>New role name</mat-label>
+        <input matInput formControlName="name" placeholder="e.g. Warehouse Supervisor" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="desc-field">
+        <mat-label>Description</mat-label>
+        <input matInput formControlName="description" />
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="button" (click)="createRole()">
+        <mat-icon>add</mat-icon>
+        Create Role
+      </button>
+    </form>
+  </div>
+
+  <app-data-table
+    [columns]="columns"
+    [data]="roles()"
+    [loading]="loading()"
+    [totalCount]="roles().length"
+    [actions]="actions()"
+    emptyTitle="No roles found"
+    (actionClick)="onAction($event)"
+  />
+</div>

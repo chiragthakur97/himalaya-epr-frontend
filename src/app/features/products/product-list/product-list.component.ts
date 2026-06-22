@@ -3,6 +3,7 @@ import {
   OnInit,
   inject,
   signal,
+  computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -15,8 +16,10 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { SearchToolbarComponent } from '../../../shared/components/search-toolbar/search-toolbar.component';
 import { DataTableComponent, TableColumn, TableAction } from '../../../shared/components/data-table/data-table.component';
 import { ProductService } from '../../../core/services/product.service';
+import { PermissionService } from '../../../core/services/permission.service';
 import { Product } from '../../../core/interfaces/product.interface';
 import { DeleteDialogComponent } from '../../../shared/dialogs/delete-dialog/delete-dialog.component';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { extractError } from '../../../core/utils/http.util';
 
 @Component({
@@ -31,6 +34,7 @@ import { extractError } from '../../../core/utils/http.util';
     PageHeaderComponent,
     SearchToolbarComponent,
     DataTableComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss',
@@ -40,6 +44,7 @@ export class ProductListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  private readonly permissionService = inject(PermissionService);
 
   readonly loading = signal(false);
   readonly products = signal<Product[]>([]);
@@ -62,11 +67,13 @@ export class ProductListComponent implements OnInit {
     { key: 'isActive', header: 'Status', type: 'boolean' },
   ];
 
-  readonly actions: TableAction[] = [
-    { icon: 'visibility', label: 'View', action: 'view' },
-    { icon: 'edit', label: 'Edit', action: 'edit' },
-    { icon: 'block', label: 'Deactivate', action: 'deactivate', color: 'warn' },
-  ];
+  readonly actions = computed(() =>
+    this.permissionService.filterActions<TableAction & { permission?: string }>([
+      { icon: 'visibility', label: 'View', action: 'view' },
+      { icon: 'edit', label: 'Edit', action: 'edit', permission: 'products.edit' },
+      { icon: 'block', label: 'Deactivate', action: 'deactivate', color: 'warn', permission: 'products.delete' },
+    ]),
+  );
 
   ngOnInit(): void {
     this.load();

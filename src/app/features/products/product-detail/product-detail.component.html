@@ -10,11 +10,11 @@
         { label: p.name }
       ]"
     >
-      <button actions mat-stroked-button [routerLink]="['/inventory']" [queryParams]="{ productId: p.id }">
+      <button *appHasPermission="'inventory.create'" actions mat-stroked-button [routerLink]="['/inventory']" [queryParams]="{ productId: p.id }">
         <mat-icon>warehouse</mat-icon>
         Manage Stock
       </button>
-      <button actions mat-flat-button color="primary" [routerLink]="['/products', p.id, 'edit']">
+      <button *appHasPermission="'products.edit'" actions mat-flat-button color="primary" [routerLink]="['/products', p.id, 'edit']">
         <mat-icon>edit</mat-icon>
         Edit
       </button>
@@ -58,7 +58,11 @@
                 <p class="low-stock-alert">
                   <mat-icon>warning</mat-icon>
                   Stock is at or below minimum level —
-                  <a routerLink="/inventory" [queryParams]="{ productId: p.id, action: 'in' }">Add stock now</a>
+                  @if (canManageStock()) {
+                    <a routerLink="/inventory" [queryParams]="{ productId: p.id, action: 'in' }">Add stock now</a>
+                  } @else {
+                    <span>Contact an inventory manager to restock.</span>
+                  }
                 </p>
               }
             </section>

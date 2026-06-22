@@ -122,6 +122,12 @@
   overflow: hidden;
 }
 
+.nav-empty-hint {
+  margin: 0 10px 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,.55);
+}
+
 .nav-item {
   display: flex;
   align-items: center;

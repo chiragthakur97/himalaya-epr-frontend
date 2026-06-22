@@ -15,6 +15,7 @@ import { SummaryCardComponent } from '../../../shared/components/summary-card/su
 import { StatusChipComponent } from '../../../shared/components/status-chip/status-chip.component';
 import { CustomerLedgerPanelComponent } from '../customer-ledger-panel/customer-ledger-panel.component';
 import { CustomerService } from '../../../core/services/customer.service';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { Customer } from '../../../core/interfaces/customer.interface';
 import { extractError } from '../../../core/utils/http.util';
 
@@ -32,6 +33,7 @@ import { extractError } from '../../../core/utils/http.util';
     SummaryCardComponent,
     StatusChipComponent,
     CustomerLedgerPanelComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './customer-detail.component.html',
   styleUrl: './customer-detail.component.scss',

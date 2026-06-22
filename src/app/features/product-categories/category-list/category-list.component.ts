@@ -3,6 +3,7 @@ import {
   OnInit,
   inject,
   signal,
+  computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -13,8 +14,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { DataTableComponent, TableColumn, TableAction } from '../../../shared/components/data-table/data-table.component';
 import { CategoryService } from '../../../core/services/category.service';
+import { PermissionService } from '../../../core/services/permission.service';
 import { ProductCategory } from '../../../core/interfaces/category.interface';
 import { DeleteDialogComponent } from '../../../shared/dialogs/delete-dialog/delete-dialog.component';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { extractError } from '../../../core/utils/http.util';
 
 @Component({
@@ -28,12 +31,14 @@ import { extractError } from '../../../core/utils/http.util';
     MatSnackBarModule,
     PageHeaderComponent,
     DataTableComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './category-list.component.html',
   styleUrl: './category-list.component.scss',
 })
 export class CategoryListComponent implements OnInit {
   private readonly service = inject(CategoryService);
+  private readonly permissionService = inject(PermissionService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
@@ -47,10 +52,12 @@ export class CategoryListComponent implements OnInit {
     { key: 'isActive', header: 'Status', type: 'boolean' },
   ];
 
-  readonly actions: TableAction[] = [
-    { icon: 'edit', label: 'Edit', action: 'edit' },
-    { icon: 'delete', label: 'Delete', action: 'delete', color: 'warn' },
-  ];
+  readonly actions = computed(() =>
+    this.permissionService.filterActions<TableAction & { permission?: string }>([
+      { icon: 'edit', label: 'Edit', action: 'edit', permission: 'products.edit' },
+      { icon: 'delete', label: 'Delete', action: 'delete', color: 'warn', permission: 'products.delete' },
+    ]),
+  );
 
   ngOnInit(): void {
     this.load();

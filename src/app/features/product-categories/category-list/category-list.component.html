@@ -1,6 +1,6 @@
 <div class="feature-page">
   <app-page-header title="Product Categories" subtitle="Manage product category master data">
-    <button actions mat-flat-button color="primary" routerLink="/product-categories/create">
+    <button *appHasPermission="'products.create'" actions mat-flat-button color="primary" routerLink="/product-categories/create">
       <mat-icon>add</mat-icon>
       Add Category
     </button>
@@ -11,7 +11,7 @@
     [data]="categories()"
     [loading]="loading()"
     [totalCount]="categories().length"
-    [actions]="actions"
+    [actions]="actions()"
     emptyTitle="No categories found"
     emptyDescription="Create your first product category to use in the product form."
     (actionClick)="onAction($event)"

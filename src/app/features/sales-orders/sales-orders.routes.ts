@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { permissionGuard } from '../../core/guards/permission.guard';
 
 export const SALES_ORDER_ROUTES: Routes = [
   {
@@ -8,6 +9,7 @@ export const SALES_ORDER_ROUTES: Routes = [
   },
   {
     path: 'create',
+    canActivate: [permissionGuard('sales_orders.create')],
     loadComponent: () =>
       import('./sales-order-create/sales-order-create.component').then(m => m.SalesOrderCreateComponent),
   },

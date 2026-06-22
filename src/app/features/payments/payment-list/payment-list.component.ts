@@ -14,6 +14,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { SearchToolbarComponent, StatusOption } from '../../../shared/components/search-toolbar/search-toolbar.component';
 import { DataTableComponent, TableColumn, TableAction } from '../../../shared/components/data-table/data-table.component';
 import { PaymentService } from '../../../core/services/payment.service';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { Payment } from '../../../core/interfaces/payment.interface';
 import { PaymentMode } from '../../../core/interfaces/sales-order.interface';
 import { extractError } from '../../../core/utils/http.util';
@@ -30,6 +31,7 @@ import { extractError } from '../../../core/utils/http.util';
     PageHeaderComponent,
     SearchToolbarComponent,
     DataTableComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './payment-list.component.html',
   styleUrl: './payment-list.component.scss',

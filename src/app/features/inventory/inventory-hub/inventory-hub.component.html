@@ -11,16 +11,22 @@
           <mat-icon>warning</mat-icon>
           <div>
             <strong>{{ lowStockProducts().length }} product(s) at or below minimum stock</strong>
-            <p>Tap a product to update stock quickly.</p>
+            @if (canManageStock()) {
+              <p>Tap a product to update stock quickly.</p>
+            } @else {
+              <p>Review low-stock products below.</p>
+            }
           </div>
         </div>
-        <div class="low-stock-chips">
-          @for (p of lowStockProducts(); track p.id) {
-            <button mat-stroked-button type="button" class="low-stock-chip" (click)="pickLowStockProduct(p)">
-              {{ p.name }} — {{ p.currentStock }} left
-            </button>
-          }
-        </div>
+        @if (canManageStock()) {
+          <div class="low-stock-chips">
+            @for (p of lowStockProducts(); track p.id) {
+              <button mat-stroked-button type="button" class="low-stock-chip" (click)="pickLowStockProduct(p)">
+                {{ p.name }} — {{ p.currentStock }} left
+              </button>
+            }
+          </div>
+        }
       </mat-card-content>
     </mat-card>
   }
@@ -67,6 +73,7 @@
         </mat-card>
       </div>
 
+      @if (canManageStock()) {
       <mat-card class="actions-card">
         <mat-card-content>
           <h3 class="section-title">2. Record a stock change</h3>
@@ -163,6 +170,7 @@
           </mat-tab-group>
         </mat-card-content>
       </mat-card>
+      }
 
       <div class="history-section">
         <h3 class="section-title">3. Movement history for {{ product.name }}</h3>

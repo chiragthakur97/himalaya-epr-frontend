@@ -12,7 +12,7 @@
       <mat-icon>warning</mat-icon>
       Low Stock
     </button>
-    <button actions mat-flat-button color="primary" routerLink="/products/create">
+    <button *appHasPermission="'products.create'" actions mat-flat-button color="primary" routerLink="/products/create">
       <mat-icon>add</mat-icon>
       Add Product
     </button>
@@ -33,7 +33,7 @@
     [totalCount]="total()"
     [pageIndex]="pageIndex()"
     [pageSize]="pageSize()"
-    [actions]="actions"
+    [actions]="actions()"
     emptyTitle="No products found"
     (pageChange)="onPage($event)"
     (actionClick)="onAction($event)"
