@@ -57,6 +57,11 @@ export const routes: Routes = [
           import('./features/payments/payments.routes').then(m => m.PAYMENT_ROUTES),
       },
       {
+        path: 'settings',
+        loadChildren: () =>
+          import('./features/settings/settings.routes').then(m => m.SETTINGS_ROUTES),
+      },
+      {
         path: 'users',
         canActivate: [adminGuard],
         loadChildren: () =>

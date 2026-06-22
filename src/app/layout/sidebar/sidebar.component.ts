@@ -36,6 +36,11 @@ export class SidebarComponent {
 
   readonly isAdmin = computed(() => getUserRoleName(this.authService.user()).toUpperCase() === 'ADMIN');
 
+  readonly canManageSettings = computed(() => {
+    const role = getUserRoleName(this.authService.user()).toUpperCase();
+    return role === 'ADMIN' || role === 'MANAGER';
+  });
+
   readonly navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
     { label: 'Customers', icon: 'people', route: '/customers' },

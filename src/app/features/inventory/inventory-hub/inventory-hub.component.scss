@@ -1,0 +1,117 @@
+@use '../../../shared/styles/feature-page';
+
+.inventory-hub {
+  .alert-card {
+    margin-bottom: 1.25rem;
+    border-left: 4px solid #e65100;
+    background: #fff8e1;
+  }
+
+  .alert-header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+
+    mat-icon {
+      color: #e65100;
+    }
+
+    p {
+      margin: 0.25rem 0 0;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+  }
+
+  .low-stock-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .low-stock-chip {
+    font-size: 0.8125rem;
+  }
+
+  .selector-card,
+  .actions-card {
+    margin-bottom: 1.25rem;
+  }
+
+  .section-title {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a237e;
+  }
+
+  .section-hint {
+    margin: 0 0 1rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .stock-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .status-card mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem !important;
+    min-height: 100%;
+    justify-content: center;
+  }
+
+  .status-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  .action-form {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem 0 0.5rem;
+    max-width: 480px;
+
+    .full-width {
+      width: 100%;
+    }
+
+    button {
+      justify-self: start;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  .delta-hint {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    &.positive {
+      color: #2e7d32;
+    }
+
+    &.negative {
+      color: #c62828;
+    }
+
+    &.neutral {
+      color: #6b7280;
+      font-weight: 400;
+    }
+  }
+
+  .history-section {
+    margin-top: 0.5rem;
+  }
+}

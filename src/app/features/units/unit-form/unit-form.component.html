@@ -1,0 +1,46 @@
+<div class="feature-page">
+  <app-page-header
+    [title]="isEdit() ? 'Edit Unit' : 'Add Unit'"
+    [subtitle]="isEdit() ? 'Update unit details' : 'Create a new unit of measure'"
+    [breadcrumbs]="[
+      { label: 'Units', route: '/units' },
+      { label: isEdit() ? 'Edit' : 'Create' }
+    ]"
+  />
+
+  @if (loading()) {
+    <app-loading-spinner message="Loading unit…" />
+  } @else {
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Unit Name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. Kilogram, Bag, Piece" />
+              @if (form.controls.name.hasError('required')) {
+                <mat-error>Name is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Short Code</mat-label>
+              <input matInput formControlName="shortCode" placeholder="e.g. Kg, Bag, Pcs" />
+              @if (form.controls.shortCode.hasError('required')) {
+                <mat-error>Short code is required</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-button type="button" routerLink="/units">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+              @if (saving()) { <mat-spinner diameter="20" /> }
+              @else { {{ isEdit() ? 'Update Unit' : 'Create Unit' }} }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

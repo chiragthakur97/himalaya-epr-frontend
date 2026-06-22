@@ -122,13 +122,6 @@ export class SalesOrderDetailComponent implements OnInit {
   }
 
   viewInvoice(): void {
-    this.service.downloadInvoice(this.orderId).subscribe({
-      next: blob => {
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 60_000);
-      },
-      error: err => this.snackBar.open(extractError(err), 'Dismiss', { duration: 4000 }),
-    });
+    this.router.navigate(['/sales-orders', this.orderId, 'invoice']);
   }
 }

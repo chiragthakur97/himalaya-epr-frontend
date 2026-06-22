@@ -1,0 +1,115 @@
+<div class="feature-page">
+  <app-page-header
+    title="Company Settings"
+    subtitle="Central configuration for invoices, branding, payments, and system preferences"
+    [breadcrumbs]="[{ label: 'Settings' }]"
+  />
+
+  @if (loading()) {
+    <app-loading-spinner message="Loading settings…" />
+  } @else if (settings(); as s) {
+    <mat-card class="settings-card">
+      <mat-tab-group animationDuration="200ms">
+        <mat-tab label="Company Profile">
+          <div class="tab-body" [formGroup]="companyForm">
+            <div class="form-grid">
+              <mat-form-field appearance="outline"><mat-label>Company Name</mat-label><input matInput formControlName="companyName" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Owner Name</mat-label><input matInput formControlName="ownerName" /></mat-form-field>
+              <mat-form-field appearance="outline" class="span-2"><mat-label>Tagline</mat-label><input matInput formControlName="tagline" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Mobile</mat-label><input matInput formControlName="mobile" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput formControlName="email" /></mat-form-field>
+              <mat-form-field appearance="outline" class="span-2"><mat-label>Address</mat-label><textarea matInput rows="2" formControlName="address"></textarea></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>City</mat-label><input matInput formControlName="city" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>State</mat-label><input matInput formControlName="state" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>PIN Code</mat-label><input matInput formControlName="pinCode" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Website</mat-label><input matInput formControlName="website" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>GSTIN</mat-label><input matInput formControlName="gstNumber" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>PAN Number</mat-label><input matInput formControlName="panNumber" /></mat-form-field>
+            </div>
+            <button mat-flat-button color="primary" [disabled]="saving()" (click)="saveCompany()">Save Company Profile</button>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Bank Accounts">
+          <div class="tab-body">
+            <table mat-table [dataSource]="bankAccounts()" class="bank-table">
+              <ng-container matColumnDef="bankName"><th mat-header-cell *matHeaderCellDef>Bank</th><td mat-cell *matCellDef="let a">{{ a.bankName }}</td></ng-container>
+              <ng-container matColumnDef="accountNumber"><th mat-header-cell *matHeaderCellDef>Account</th><td mat-cell *matCellDef="let a">{{ a.accountNumber }}</td></ng-container>
+              <ng-container matColumnDef="ifscCode"><th mat-header-cell *matHeaderCellDef>IFSC</th><td mat-cell *matCellDef="let a">{{ a.ifscCode }}</td></ng-container>
+              <ng-container matColumnDef="isPrimary"><th mat-header-cell *matHeaderCellDef>Primary</th><td mat-cell *matCellDef="let a">{{ a.isPrimary ? 'Yes' : 'No' }}</td></ng-container>
+              <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef></th><td mat-cell *matCellDef="let a"><button mat-icon-button color="warn" (click)="deleteBankAccount(a.id)"><mat-icon>delete</mat-icon></button></td></ng-container>
+              <tr mat-header-row *matHeaderRowDef="bankColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: bankColumns"></tr>
+            </table>
+
+            <h4>Add Bank Account</h4>
+            <div class="form-grid" [formGroup]="bankForm">
+              <mat-form-field appearance="outline"><mat-label>Bank Name</mat-label><input matInput formControlName="bankName" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Account Holder</mat-label><input matInput formControlName="accountHolderName" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Account Number</mat-label><input matInput formControlName="accountNumber" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>IFSC Code</mat-label><input matInput formControlName="ifscCode" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Branch</mat-label><input matInput formControlName="branchName" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Account Type</mat-label><input matInput formControlName="accountType" /></mat-form-field>
+              <mat-checkbox formControlName="isPrimary">Set as primary account</mat-checkbox>
+            </div>
+            <button mat-flat-button color="primary" [disabled]="saving()" (click)="addBankAccount()">Add Bank Account</button>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="UPI & QR">
+          <div class="tab-body" [formGroup]="upiForm">
+            <mat-form-field appearance="outline" class="span-2"><mat-label>UPI ID</mat-label><input matInput formControlName="upiId" placeholder="himalayatraders@paytm" /></mat-form-field>
+            <app-asset-upload assetType="qr" label="UPI QR Code" [currentUrl]="s.upiQrUrl" (uploaded)="onAssetUploaded('upiQrUrl', $event)" />
+            <button mat-flat-button color="primary" [disabled]="saving()" (click)="saveUpi()">Save UPI Settings</button>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Invoice Settings">
+          <div class="tab-body" [formGroup]="invoiceForm">
+            <div class="form-grid">
+              <mat-form-field appearance="outline"><mat-label>Invoice Prefix</mat-label><input matInput formControlName="invoicePrefix" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Default GST Rate %</mat-label><input matInput type="number" formControlName="defaultGstRate" /></mat-form-field>
+              <mat-form-field appearance="outline" class="span-2"><mat-label>Invoice Footer Note</mat-label><textarea matInput rows="2" formControlName="invoiceFooterNote"></textarea></mat-form-field>
+              <mat-slide-toggle formControlName="showQrOnInvoice">Show UPI QR on unpaid invoices</mat-slide-toggle>
+            </div>
+            <button mat-flat-button color="primary" [disabled]="saving()" (click)="saveInvoice()">Save Invoice Settings</button>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Documents & Branding">
+          <div class="tab-body" [formGroup]="brandingForm">
+            <div class="upload-grid">
+              <app-asset-upload assetType="logo" label="Company Logo" [currentUrl]="s.logoUrl" (uploaded)="onAssetUploaded('logoUrl', $event)" />
+              <app-asset-upload assetType="signature" label="Signature" [currentUrl]="s.signatureUrl" (uploaded)="onAssetUploaded('signatureUrl', $event)" />
+              <app-asset-upload assetType="stamp" label="Company Stamp" [currentUrl]="s.stampUrl" (uploaded)="onAssetUploaded('stampUrl', $event)" />
+            </div>
+            <mat-form-field appearance="outline"><mat-label>Primary Brand Color</mat-label><input matInput formControlName="primaryColor" /></mat-form-field>
+            <button mat-flat-button color="primary" [disabled]="saving()" (click)="saveBranding()">Save Branding</button>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Terms & Conditions">
+          <div class="tab-body" [formGroup]="termsForm">
+            <mat-form-field appearance="outline" class="span-2">
+              <mat-label>Invoice Terms (one per line)</mat-label>
+              <textarea matInput rows="8" formControlName="invoiceTerms"></textarea>
+            </mat-form-field>
+            <button mat-flat-button color="primary" [disabled]="saving()" (click)="saveTerms()">Save Terms</button>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="System Preferences">
+          <div class="tab-body" [formGroup]="systemForm">
+            <div class="form-grid">
+              <mat-form-field appearance="outline"><mat-label>ERP Version Label</mat-label><input matInput formControlName="erpVersion" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Date Format</mat-label><input matInput formControlName="dateFormat" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Currency</mat-label><input matInput formControlName="currency" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Timezone</mat-label><input matInput formControlName="timezone" /></mat-form-field>
+            </div>
+            <button mat-flat-button color="primary" [disabled]="saving()" (click)="saveSystem()">Save System Preferences</button>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+  }
+</div>

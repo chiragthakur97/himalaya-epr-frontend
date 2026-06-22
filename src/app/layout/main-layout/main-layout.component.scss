@@ -10,8 +10,20 @@
 .layout-sidebar {
   flex-shrink: 0;
   width: 260px;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   transition: width .25s ease;
   z-index: 200;
+
+  app-sidebar {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
 
   &.collapsed {
     width: 68px;
@@ -60,4 +72,24 @@
   background: rgba(0,0,0,.4);
   z-index: 199;
   backdrop-filter: blur(2px);
+}
+
+@media print {
+  .layout-sidebar,
+  .sidebar-overlay,
+  app-header {
+    display: none !important;
+  }
+
+  .layout-root,
+  .layout-main,
+  .layout-content {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .layout-content {
+    background: #fff !important;
+  }
 }

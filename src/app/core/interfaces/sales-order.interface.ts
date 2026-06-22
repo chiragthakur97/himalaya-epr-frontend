@@ -7,7 +7,15 @@ export type PaymentMode = 'CASH' | 'GPAY' | 'PHONEPE' | 'PAYTM' | 'CARD' | 'BANK
 export interface SalesOrderItem {
   id?: string;
   productId: string;
-  product?: { id: string; name: string; sku?: string; productCode?: string; currentStock?: number };
+  productName?: string;
+  product?: {
+    id: string;
+    name: string;
+    sku?: string;
+    productCode?: string;
+    gstPercentage?: number;
+    currentStock?: number;
+  };
   quantity: number;
   unitPrice: number;
   lineTotal?: number;
@@ -15,6 +23,7 @@ export interface SalesOrderItem {
 
 export interface SalesOrderPayment {
   id: string;
+  paymentNumber?: string;
   amount: number;
   paymentMode: PaymentMode;
   transactionReference?: string | null;
@@ -25,8 +34,17 @@ export interface SalesOrderPayment {
 export interface SalesOrder {
   id: string;
   orderNumber: string;
+  invoiceNumber?: string | null;
   customerId: string;
-  customer?: { id: string; name: string; mobile?: string; customerCode?: string };
+  customer?: {
+    id: string;
+    name: string;
+    mobile?: string;
+    email?: string | null;
+    address?: string | null;
+    gstNumber?: string | null;
+    customerCode?: string;
+  };
   orderDate: string;
   items: SalesOrderItem[];
   payments?: SalesOrderPayment[];

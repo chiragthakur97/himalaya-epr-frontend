@@ -11,6 +11,7 @@
     }
   </div>
 
+  <div class="sidebar-nav-scroll">
   <div class="nav-section">
     @if (!collapsed()) {
       <span class="nav-label">Main Menu</span>
@@ -34,29 +35,49 @@
     }
   </div>
 
-  @if (isAdmin()) {
+  @if (canManageSettings() || isAdmin()) {
     <div class="nav-section">
       @if (!collapsed()) {
-        <span class="nav-label">Admin</span>
+        <span class="nav-label">Administration</span>
       }
-      @for (item of adminNavItems; track item.route) {
+      @if (canManageSettings()) {
         <a
-          [routerLink]="item.route"
+          routerLink="/settings"
           routerLinkActive="active"
           class="nav-item"
           matRipple
-          [matTooltip]="collapsed() ? item.label : ''"
+          [matTooltip]="collapsed() ? 'Settings' : ''"
           matTooltipPosition="right"
           (click)="onLinkClick()"
         >
-          <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+          <mat-icon class="nav-icon">settings</mat-icon>
           @if (!collapsed()) {
-            <span class="nav-text">{{ item.label }}</span>
+            <span class="nav-text">Settings</span>
           }
         </a>
       }
+      @if (isAdmin()) {
+        @for (item of adminNavItems; track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            class="nav-item"
+            matRipple
+            [matTooltip]="collapsed() ? item.label : ''"
+            matTooltipPosition="right"
+            (click)="onLinkClick()"
+          >
+            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+            @if (!collapsed()) {
+              <span class="nav-text">{{ item.label }}</span>
+            }
+          </a>
+        }
+      }
     </div>
   }
+
+  </div>
 
   <div class="sidebar-bottom">
     <div class="user-info" [class.collapsed]="collapsed()">

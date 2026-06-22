@@ -1,0 +1,188 @@
+<div class="feature-page inventory-hub">
+  <app-page-header
+    title="Stock Management"
+    subtitle="Add stock, remove stock, or set exact quantity after a physical count — all in one place"
+  />
+
+  @if (lowStockProducts().length > 0) {
+    <mat-card class="alert-card">
+      <mat-card-content>
+        <div class="alert-header">
+          <mat-icon>warning</mat-icon>
+          <div>
+            <strong>{{ lowStockProducts().length }} product(s) at or below minimum stock</strong>
+            <p>Tap a product to update stock quickly.</p>
+          </div>
+        </div>
+        <div class="low-stock-chips">
+          @for (p of lowStockProducts(); track p.id) {
+            <button mat-stroked-button type="button" class="low-stock-chip" (click)="pickLowStockProduct(p)">
+              {{ p.name }} — {{ p.currentStock }} left
+            </button>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card class="selector-card">
+    <mat-card-content>
+      <h3 class="section-title">1. Choose a product</h3>
+      <app-product-autocomplete
+        label="Search product by name, SKU, or code"
+        placeholder="Start typing to search…"
+        [initialProductId]="initialProductId()"
+        (productSelected)="onProductSelected($event)"
+      />
+    </mat-card-content>
+  </mat-card>
+
+  @if (!selectedProduct()) {
+    <app-empty-state
+      icon="inventory_2"
+      title="Select a product to manage stock"
+      description="Search for a product above, or pick one from the low-stock alerts. You can also open this page from any product detail using “Manage Stock”."
+    />
+  } @else {
+    @if (selectedProduct(); as product) {
+      <div class="stock-summary">
+        <app-summary-card
+          title="Current Stock"
+          [value]="product.currentStock"
+          icon="inventory"
+          [color]="isLowStock() ? '#e65100' : '#2e7d32'"
+        />
+        <app-summary-card
+          title="Minimum Stock"
+          [value]="product.minimumStock"
+          icon="flag"
+          color="#3949ab"
+        />
+        <mat-card class="status-card">
+          <mat-card-content>
+            <span class="status-label">Stock status</span>
+            <app-status-chip [status]="isLowStock() ? 'LOW_STOCK' : 'OK'" />
+            <a mat-button routerLink="/products/{{ product.id }}">View product</a>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <mat-card class="actions-card">
+        <mat-card-content>
+          <h3 class="section-title">2. Record a stock change</h3>
+          <p class="section-hint">
+            <strong>Stock In</strong> when goods arrive ·
+            <strong>Stock Out</strong> for damage or write-offs ·
+            <strong>Physical Count</strong> when you count shelves and need to set the exact number
+          </p>
+
+          <mat-tab-group
+            [selectedIndex]="selectedTab()"
+            (selectedIndexChange)="onTabChange($event)"
+            animationDuration="200ms"
+          >
+            <mat-tab label="Stock In">
+              <form class="action-form" [formGroup]="stockInForm" (ngSubmit)="submitStockIn()">
+                <mat-form-field appearance="outline">
+                  <mat-label>Quantity to add</mat-label>
+                  <input matInput type="number" formControlName="quantity" min="0.01" step="0.01" />
+                  <mat-hint>Current: {{ product.currentStock }}</mat-hint>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Notes (optional)</mat-label>
+                  <textarea matInput formControlName="remarks" rows="2" placeholder="e.g. Received from supplier"></textarea>
+                </mat-form-field>
+                <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+                  @if (saving()) {
+                    <mat-spinner diameter="20" />
+                  } @else {
+                    <mat-icon>add</mat-icon>
+                  }
+                  @if (!saving()) { Add to stock }
+                </button>
+              </form>
+            </mat-tab>
+
+            <mat-tab label="Stock Out">
+              <form class="action-form" [formGroup]="stockOutForm" (ngSubmit)="submitStockOut()">
+                <mat-form-field appearance="outline">
+                  <mat-label>Quantity to remove</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="quantity"
+                    min="0.01"
+                    [max]="product.currentStock"
+                    step="0.01"
+                  />
+                  <mat-hint>Available: {{ product.currentStock }}</mat-hint>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Reason (optional)</mat-label>
+                  <textarea matInput formControlName="remarks" rows="2" placeholder="e.g. Damaged bags, expired stock"></textarea>
+                </mat-form-field>
+                <button mat-flat-button color="warn" type="submit" [disabled]="saving()">
+                  @if (saving()) {
+                    <mat-spinner diameter="20" />
+                  } @else {
+                    <mat-icon>remove</mat-icon>
+                  }
+                  @if (!saving()) { Remove from stock }
+                </button>
+              </form>
+            </mat-tab>
+
+            <mat-tab label="Physical Count">
+              <form class="action-form" [formGroup]="countForm" (ngSubmit)="submitPhysicalCount()">
+                <mat-form-field appearance="outline">
+                  <mat-label>Counted quantity (actual on hand)</mat-label>
+                  <input matInput type="number" formControlName="newQuantity" min="0" step="0.01" />
+                  <mat-hint>System shows {{ product.currentStock }}</mat-hint>
+                </mat-form-field>
+                @if (countDelta() !== 0) {
+                  <p class="delta-hint" [class.positive]="countDelta() > 0" [class.negative]="countDelta() < 0">
+                    Adjustment: {{ countDelta() > 0 ? '+' : '' }}{{ countDelta() }}
+                  </p>
+                } @else {
+                  <p class="delta-hint neutral">No change — count matches system stock.</p>
+                }
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Notes (optional)</mat-label>
+                  <textarea matInput formControlName="remarks" rows="2" placeholder="e.g. Monthly shelf count"></textarea>
+                </mat-form-field>
+                <button mat-flat-button color="primary" type="submit" [disabled]="saving() || countDelta() === 0">
+                  @if (saving()) {
+                    <mat-spinner diameter="20" />
+                  } @else {
+                    <mat-icon>fact_check</mat-icon>
+                  }
+                  @if (!saving()) { Apply physical count }
+                </button>
+              </form>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+
+      <div class="history-section">
+        <h3 class="section-title">3. Movement history for {{ product.name }}</h3>
+        @if (loadingHistory() && !history().length) {
+          <app-loading-spinner message="Loading history…" />
+        } @else {
+          <app-data-table
+            [columns]="historyColumns"
+            [data]="history()"
+            [loading]="loadingHistory()"
+            [totalCount]="historyTotal()"
+            [pageIndex]="pageIndex()"
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="[10, 20, 50]"
+            emptyTitle="No stock movements yet"
+            emptyDescription="Stock changes for this product will appear here."
+            (pageChange)="onHistoryPage($event)"
+          />
+        }
+      </div>
+    }
+  }
+</div>

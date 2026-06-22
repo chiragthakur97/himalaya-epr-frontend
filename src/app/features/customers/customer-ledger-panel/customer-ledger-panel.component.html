@@ -1,0 +1,55 @@
+<div class="ledger-panel">
+  <div class="ledger-toolbar">
+    <div class="ledger-filters">
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>From date</mat-label>
+        <input matInput [matDatepicker]="fromPicker" [formControl]="dateFromControl" />
+        <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+        <mat-datepicker #fromPicker />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>To date</mat-label>
+        <input matInput [matDatepicker]="toPicker" [formControl]="dateToControl" />
+        <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+        <mat-datepicker #toPicker />
+      </mat-form-field>
+
+      <button mat-stroked-button type="button" (click)="applyFilters()">
+        <mat-icon>filter_alt</mat-icon>
+        Apply
+      </button>
+      <button mat-button type="button" (click)="clearFilters()">Clear</button>
+    </div>
+
+    <div class="ledger-actions">
+      <button mat-stroked-button type="button" (click)="printLedger()">
+        <mat-icon>print</mat-icon>
+        Print
+      </button>
+      <button mat-stroked-button type="button" (click)="downloadCsv()" [disabled]="exporting()">
+        <mat-icon>download</mat-icon>
+        Download CSV
+      </button>
+    </div>
+  </div>
+
+  <p class="ledger-hint">
+    <strong>Dr</strong> increases what the customer owes (sales orders).
+    <strong>Cr</strong> reduces balance (payments received).
+    Balance shows outstanding after each entry.
+  </p>
+
+  <app-data-table
+    [columns]="columns"
+    [data]="entries()"
+    [loading]="loading()"
+    [totalCount]="total()"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
+    [showPaginator]="!previewMode()"
+    emptyTitle="No ledger entries"
+    emptyDescription="Try clearing date filters or record a sales order / payment for this customer."
+    (pageChange)="onPage($event)"
+  />
+</div>

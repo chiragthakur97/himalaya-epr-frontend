@@ -1,0 +1,294 @@
+<div class="invoice-page">
+  <div class="invoice-toolbar no-print">
+    <button mat-stroked-button routerLink="/sales-orders/{{ order()?.id }}">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Order
+    </button>
+    <div class="toolbar-actions">
+      <button mat-stroked-button (click)="printInvoice()">
+        <mat-icon>print</mat-icon>
+        Print
+      </button>
+      <button mat-flat-button color="primary" (click)="downloadPdf()">
+        <mat-icon>download</mat-icon>
+        Download PDF
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner message="Loading invoice…" />
+  } @else if (order(); as o) {
+    @if (companySettings(); as c) {
+    <div class="invoice-shell">
+      <article class="invoice-document">
+        <div class="watermark" [class]="watermarkMeta(o.orderStatus, o.paymentStatus, o.outstandingAmount).className">
+          {{ watermarkMeta(o.orderStatus, o.paymentStatus, o.outstandingAmount).text }}
+        </div>
+
+        <header class="invoice-header">
+          <div class="brand-block">
+            <div class="logo-placeholder">
+              @if (assetUrl(c.logoUrl); as logo) {
+                <img [src]="logo" alt="Company logo" />
+              } @else {
+                <mat-icon>storefront</mat-icon>
+              }
+            </div>
+            <div>
+              <h1>{{ c.companyName }}</h1>
+              @if (c.tagline) {
+                <p class="tagline">{{ c.tagline }}</p>
+              }
+            </div>
+          </div>
+          <h2 class="tax-invoice-title">TAX INVOICE</h2>
+        </header>
+
+        <div class="divider"></div>
+
+        <section class="info-grid">
+          <div class="company-info">
+            <h3>Company Information</h3>
+            <p class="strong">{{ c.companyName }}</p>
+            @if (c.tagline) {
+              <p class="tagline-inline">{{ c.tagline }}</p>
+            }
+            @if (c.address) {
+              <p>{{ c.address }}</p>
+            }
+            @if (c.city || c.state || c.pinCode) {
+              <p>{{ c.city }}{{ c.city && c.state ? ', ' : '' }}{{ c.state }}{{ c.pinCode ? ' — ' + c.pinCode : '' }}</p>
+            }
+            <p>Phone: {{ c.mobile }}</p>
+            @if (c.email) {
+              <p>Email: {{ c.email }}</p>
+            }
+            @if (c.website) {
+              <p>Website: {{ c.website }}</p>
+            }
+            @if (c.gstNumber) {
+              <p>GSTIN: {{ c.gstNumber }}</p>
+            }
+            @if (c.panNumber) {
+              <p>PAN: {{ c.panNumber }}</p>
+            }
+          </div>
+
+          <div class="invoice-info-card">
+            <h3>Invoice Details</h3>
+            <div class="info-row"><span>Invoice No:</span><strong>{{ invoiceNumber(o) }}</strong></div>
+            <div class="info-row"><span>Date:</span><span>{{ fmtInvoiceDate(o.createdAt) }}</span></div>
+            <div class="info-row"><span>Order:</span><span>{{ o.orderNumber }}</span></div>
+            <div class="info-row"><span>Order Date:</span><span>{{ fmtInvoiceDate(o.orderDate) }}</span></div>
+            <div class="info-row">
+              <span>Status:</span>
+              <span class="status-badge" [class]="paymentStatusClass(o.paymentStatus)">
+                {{ paymentStatusLabel(o.paymentStatus) }}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section class="bill-to-card">
+          <h3>Bill To</h3>
+          <p class="strong">{{ o.customer?.name }}</p>
+          @if (o.customer?.mobile) {
+            <p>Mobile: {{ o.customer?.mobile }}</p>
+          }
+          @if (o.customer?.email) {
+            <p>Email: {{ o.customer?.email }}</p>
+          }
+          @if (o.customer?.address) {
+            <p>{{ o.customer?.address }}</p>
+          }
+          @if (o.customer?.gstNumber) {
+            <p>GSTIN: {{ o.customer?.gstNumber }}</p>
+          }
+        </section>
+
+        <div class="table-wrap items-table-wrap">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Sr</th>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>HSN</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>GST %</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of o.items; track item.productId; let i = $index) {
+                <tr>
+                  <td class="center">{{ i + 1 }}</td>
+                  <td>{{ item.productName ?? item.product?.name }}</td>
+                  <td>{{ item.product?.sku ?? item.product?.productCode ?? '—' }}</td>
+                  <td class="center">—</td>
+                  <td class="center">{{ item.quantity }}</td>
+                  <td class="num">{{ fmtRupee(item.unitPrice) }}</td>
+                  <td class="center">{{ item.product?.gstPercentage ? item.product?.gstPercentage + '%' : '—' }}</td>
+                  <td class="num strong">{{ fmtRupee(item.lineTotal ?? item.quantity * item.unitPrice) }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="subtotal-row">
+                <td colspan="7">Items Subtotal</td>
+                <td class="num strong">{{ fmtRupee(o.subtotal ?? o.totalAmount) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        @let tax = taxBreakdown(o.subtotal ?? o.totalAmount, o.discountAmount, o.taxAmount, c.defaultGstRate);
+        <section class="summary-row">
+          <div class="words-box">
+            <h3>Amount In Words</h3>
+            <p>{{ amountInWords(o.totalAmount) }}</p>
+          </div>
+          <div class="tax-card">
+            <h3>Tax Summary</h3>
+            <div class="tax-line"><span>Taxable Amount:</span><span>{{ fmtRupee(tax.taxableAmount) }}</span></div>
+            @if (o.discountAmount > 0) {
+              <div class="tax-line"><span>Discount:</span><span>- {{ fmtRupee(o.discountAmount) }}</span></div>
+            }
+            @if (tax.cgstAmount > 0) {
+              <div class="tax-line"><span>CGST {{ tax.cgstRate }}%:</span><span>{{ fmtRupee(tax.cgstAmount) }}</span></div>
+            }
+            @if (tax.sgstAmount > 0) {
+              <div class="tax-line"><span>SGST {{ tax.sgstRate }}%:</span><span>{{ fmtRupee(tax.sgstAmount) }}</span></div>
+            }
+            @if (tax.igstAmount > 0) {
+              <div class="tax-line"><span>IGST {{ tax.igstRate }}%:</span><span>{{ fmtRupee(tax.igstAmount) }}</span></div>
+            }
+            <div class="tax-line grand"><span>Grand Total:</span><strong>{{ fmtRupee(o.totalAmount) }}</strong></div>
+          </div>
+        </section>
+
+        <section class="payment-kpis">
+          <h3>Payment Summary</h3>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <span>Invoice Amount</span>
+              <strong>{{ fmtRupee(o.totalAmount) }}</strong>
+            </div>
+            <div class="kpi-card paid">
+              <span>Paid Amount</span>
+              <strong>{{ fmtRupee(o.paidAmount) }}</strong>
+            </div>
+            <div class="kpi-card" [class.due]="o.outstandingAmount > 0">
+              <span>Outstanding Amount</span>
+              <strong>{{ fmtRupee(o.outstandingAmount) }}</strong>
+            </div>
+            <div class="kpi-card" [class]="'status-' + paymentStatusClass(o.paymentStatus).replace('status-', '')">
+              <span>Status</span>
+              <strong [class]="paymentStatusClass(o.paymentStatus)">
+                {{ paymentStatusLabel(o.paymentStatus) }}
+              </strong>
+            </div>
+          </div>
+        </section>
+
+        @if (sortedPayments(o).length) {
+          <section class="payment-history">
+            <h3>Payment History</h3>
+            <div class="table-wrap">
+              <table class="payments-table">
+                <thead>
+                  <tr>
+                    <th>Payment Number</th>
+                    <th>Date</th>
+                    <th>Mode</th>
+                    <th>Amount</th>
+                    <th>Reference</th>
+                    <th>Received By</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (p of sortedPayments(o); track p.id) {
+                    <tr>
+                      <td>{{ p.paymentNumber ?? '—' }}</td>
+                      <td>{{ fmtInvoiceDate(p.createdAt) }}</td>
+                      <td>
+                        <span
+                          class="mode-chip"
+                          [style.background]="paymentModeStyle(p.paymentMode).bg"
+                          [style.color]="paymentModeStyle(p.paymentMode).text"
+                        >
+                          {{ formatPaymentMode(p.paymentMode) }}
+                        </span>
+                      </td>
+                      <td class="num strong">{{ fmtRupee(p.amount) }}</td>
+                      <td>{{ p.transactionReference ?? '—' }}</td>
+                      <td>—</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        }
+
+        <section class="bottom-section">
+          <div class="terms-block">
+            <h3>Terms &amp; Conditions</h3>
+            <ol>
+              @for (term of termsList(); track term) {
+                <li>{{ term }}</li>
+              }
+            </ol>
+          </div>
+
+          <div class="signature-block">
+            <p class="strong">For {{ c.companyName }}</p>
+            <div class="signature-row">
+              <div class="signature-box">
+                @if (assetUrl(c.signatureUrl); as sig) {
+                  <img [src]="sig" alt="Signature" />
+                } @else {
+                  Signature Area
+                }
+              </div>
+              <div class="stamp-box">
+                @if (assetUrl(c.stampUrl); as stamp) {
+                  <img [src]="stamp" alt="Stamp" />
+                } @else {
+                  Company Stamp
+                }
+              </div>
+            </div>
+            <p>Authorized Signatory</p>
+          </div>
+
+          @if (showQr(o)) {
+            <div class="qr-block">
+              <h3>Scan &amp; Pay</h3>
+              <img
+                [src]="qrCodeUrl(buildUpiPayUrl(c.upiId!, o.outstandingAmount, invoiceNumber(o), c.companyName))"
+                alt="UPI QR Code"
+                width="120"
+                height="120"
+              />
+              <p>{{ c.upiId }}</p>
+            </div>
+          }
+        </section>
+
+        <footer class="invoice-footer">
+          <p>Thank you for your business.</p>
+          <p class="muted">This is a computer-generated invoice and does not require a physical signature.</p>
+          <p class="muted">Generated on: {{ generatedAt }}</p>
+          <p class="erp-version">ERP Version: {{ c.erpVersion }}</p>
+          @if (o.notes) {
+            <p class="muted note">Note: {{ o.notes }}</p>
+          }
+        </footer>
+      </article>
+    </div>
+    }
+  }
+</div>

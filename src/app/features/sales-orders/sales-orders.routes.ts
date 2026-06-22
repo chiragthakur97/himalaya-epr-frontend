@@ -12,6 +12,11 @@ export const SALES_ORDER_ROUTES: Routes = [
       import('./sales-order-create/sales-order-create.component').then(m => m.SalesOrderCreateComponent),
   },
   {
+    path: ':id/invoice',
+    loadComponent: () =>
+      import('./invoice-preview/invoice-preview.component').then(m => m.InvoicePreviewComponent),
+  },
+  {
     path: ':id',
     loadComponent: () =>
       import('./sales-order-detail/sales-order-detail.component').then(m => m.SalesOrderDetailComponent),
