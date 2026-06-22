@@ -62,6 +62,7 @@ export interface CreateSalesOrderDto {
   discountAmount?: number;
   taxAmount?: number;
   notes?: string;
+  orderDate?: string;
   orderStatus?: OrderStatus;
   payment?: CreateOrderPaymentDto;
 }

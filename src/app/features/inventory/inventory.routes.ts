@@ -1,25 +1,13 @@
 import { Routes } from '@angular/router';
 
 export const INVENTORY_ROUTES: Routes = [
-  { path: '', redirectTo: 'history', pathMatch: 'full' },
   {
-    path: 'add-stock',
+    path: '',
     loadComponent: () =>
-      import('./add-stock/add-stock.component').then(m => m.AddStockComponent),
+      import('./inventory-hub/inventory-hub.component').then(m => m.InventoryHubComponent),
   },
-  {
-    path: 'remove-stock',
-    loadComponent: () =>
-      import('./remove-stock/remove-stock.component').then(m => m.RemoveStockComponent),
-  },
-  {
-    path: 'adjust-stock',
-    loadComponent: () =>
-      import('./adjust-stock/adjust-stock.component').then(m => m.AdjustStockComponent),
-  },
-  {
-    path: 'history',
-    loadComponent: () =>
-      import('./inventory-history/inventory-history.component').then(m => m.InventoryHistoryComponent),
-  },
+  { path: 'history', redirectTo: '', pathMatch: 'full' },
+  { path: 'add-stock', redirectTo: '', pathMatch: 'full' },
+  { path: 'remove-stock', redirectTo: '', pathMatch: 'full' },
+  { path: 'adjust-stock', redirectTo: '', pathMatch: 'full' },
 ];

@@ -8,7 +8,7 @@ export interface CategoryRef {
 export interface UnitRef {
   id: string;
   name: string;
-  symbol?: string;
+  shortCode?: string;
 }
 
 export interface Product {
@@ -47,7 +47,7 @@ export interface CreateProductDto {
   isActive?: boolean;
 }
 
-export type UpdateProductDto = Partial<CreateProductDto>;
+export type UpdateProductDto = Partial<Omit<CreateProductDto, 'openingStock'>>;
 
 export interface ProductQueryParams extends PaginationParams {
   search?: string;
@@ -57,10 +57,13 @@ export interface ProductQueryParams extends PaginationParams {
 
 export interface InventoryHistoryEntry {
   id: string;
-  date: string;
+  createdAt: string;
   transactionType: string;
   quantity: number;
-  reference: string | null;
+  stockBefore: number;
+  stockAfter: number;
+  referenceType: string;
+  referenceId: string | null;
   remarks: string | null;
   product?: { id: string; name: string; productCode?: string };
 }

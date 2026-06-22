@@ -41,7 +41,8 @@ export class SidebarComponent {
     { label: 'Customers', icon: 'people', route: '/customers' },
     { label: 'Products', icon: 'inventory_2', route: '/products' },
     { label: 'Categories', icon: 'category', route: '/product-categories' },
-    { label: 'Inventory', icon: 'warehouse', route: '/inventory/history' },
+    { label: 'Units', icon: 'straighten', route: '/units' },
+    { label: 'Inventory', icon: 'warehouse', route: '/inventory' },
     { label: 'Sales Orders', icon: 'receipt_long', route: '/sales-orders' },
     { label: 'Payments', icon: 'payments', route: '/payments' },
   ];
@@ -51,10 +52,7 @@ export class SidebarComponent {
   ];
 
   readonly inventorySubItems: NavItem[] = [
-    { label: 'History', icon: 'history', route: '/inventory/history' },
-    { label: 'Add Stock', icon: 'add', route: '/inventory/add-stock' },
-    { label: 'Remove Stock', icon: 'remove', route: '/inventory/remove-stock' },
-    { label: 'Adjust Stock', icon: 'tune', route: '/inventory/adjust-stock' },
+    { label: 'Stock Management', icon: 'warehouse', route: '/inventory' },
   ];
 
   displayName = () => getUserDisplayName(this.authService.user());

@@ -17,6 +17,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CustomerService } from '../../../core/services/customer.service';
+import {
+  CreateCustomerDto,
+  UpdateCustomerDto,
+} from '../../../core/interfaces/customer.interface';
 import { extractError } from '../../../core/utils/http.util';
 
 @Component({
@@ -49,13 +53,14 @@ export class CustomerFormComponent implements OnInit {
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly isEdit = signal(false);
+  readonly outstandingBalance = signal(0);
   private customerId: string | null = null;
 
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     mobile: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-    alternateMobile: [''],
-    email: ['', Validators.email],
+    alternateMobile: ['', Validators.pattern(/^\d{10}$/)],
+    email: [''],
     address: [''],
     gstNumber: [''],
     creditLimit: [0, [Validators.min(0)]],
@@ -78,6 +83,7 @@ export class CustomerFormComponent implements OnInit {
     this.loading.set(true);
     this.service.findOne(id).subscribe({
       next: customer => {
+        this.outstandingBalance.set(customer.outstandingBalance);
         this.form.patchValue({
           name: customer.name,
           mobile: customer.mobile,
@@ -107,27 +113,51 @@ export class CustomerFormComponent implements OnInit {
 
     this.saving.set(true);
     const raw = this.form.getRawValue();
-    const payload = {
-      ...raw,
-      alternateMobile: raw.alternateMobile || undefined,
-      email: raw.email || undefined,
-      address: raw.address || undefined,
-      gstNumber: raw.gstNumber || undefined,
-      notes: raw.notes || undefined,
+
+    if (this.isEdit() && this.customerId) {
+      const updatePayload: UpdateCustomerDto = {
+        name: raw.name.trim(),
+        mobile: raw.mobile.trim(),
+        alternateMobile: raw.alternateMobile.trim() || null,
+        email: raw.email.trim() || null,
+        address: raw.address.trim() || null,
+        gstNumber: raw.gstNumber.trim() || null,
+        creditLimit: raw.creditLimit,
+        notes: raw.notes.trim() || null,
+        isActive: raw.isActive,
+      };
+
+      this.service.update(this.customerId, updatePayload).subscribe({
+        next: customer => {
+          this.saving.set(false);
+          this.snackBar.open('Customer updated', 'Dismiss', { duration: 3000 });
+          this.router.navigate(['/customers', customer.id]);
+        },
+        error: err => {
+          this.saving.set(false);
+          this.snackBar.open(extractError(err), 'Dismiss', { duration: 4000 });
+        },
+      });
+      return;
+    }
+
+    const createPayload: CreateCustomerDto = {
+      name: raw.name.trim(),
+      mobile: raw.mobile.trim(),
+      alternateMobile: raw.alternateMobile.trim() || undefined,
+      email: raw.email.trim() || undefined,
+      address: raw.address.trim() || undefined,
+      gstNumber: raw.gstNumber.trim() || undefined,
+      creditLimit: raw.creditLimit,
+      openingBalance: raw.openingBalance > 0 ? raw.openingBalance : undefined,
+      notes: raw.notes.trim() || undefined,
+      isActive: raw.isActive,
     };
 
-    const req$ = this.isEdit() && this.customerId
-      ? this.service.update(this.customerId, payload)
-      : this.service.create(payload);
-
-    req$.subscribe({
+    this.service.create(createPayload).subscribe({
       next: customer => {
         this.saving.set(false);
-        this.snackBar.open(
-          this.isEdit() ? 'Customer updated' : 'Customer created',
-          'Dismiss',
-          { duration: 3000 }
-        );
+        this.snackBar.open('Customer created', 'Dismiss', { duration: 3000 });
         this.router.navigate(['/customers', customer.id]);
       },
       error: err => {

@@ -50,9 +50,21 @@ export function normalizePaginated<T>(response: unknown): PaginatedResult<T> {
   if (r['data'] && typeof r['data'] === 'object' && !Array.isArray(r['data'])) {
     const inner = r['data'] as Record<string, unknown>;
     if (Array.isArray(inner['data'])) {
+      const items = inner['data'] as T[];
+      if (typeof inner['total'] === 'number') {
+        return {
+          data: items,
+          meta: {
+            total: Number(inner['total']),
+            page: Number(inner['page'] ?? 1),
+            limit: Number(inner['limit'] ?? (items.length || 20)),
+            totalPages: Number(inner['totalPages'] ?? 1),
+          },
+        };
+      }
       return {
-        data: inner['data'] as T[],
-        meta: (inner['meta'] as PaginationMeta) ?? defaultMeta(inner['data'] as T[]),
+        data: items,
+        meta: (inner['meta'] as PaginationMeta) ?? defaultMeta(items),
       };
     }
   }

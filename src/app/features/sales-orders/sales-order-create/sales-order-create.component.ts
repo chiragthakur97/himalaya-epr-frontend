@@ -3,6 +3,7 @@ import {
   inject,
   signal,
   computed,
+  ViewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,21 +17,28 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule } from '@angular/material/table';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { CustomerAutocompleteComponent } from '../../../shared/components/customer-autocomplete/customer-autocomplete.component';
+import { ProductAutocompleteComponent } from '../../../shared/components/product-autocomplete/product-autocomplete.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { SalesOrderService } from '../../../core/services/sales-order.service';
-import { ProductService } from '../../../core/services/product.service';
 import { Customer } from '../../../core/interfaces/customer.interface';
 import { Product } from '../../../core/interfaces/product.interface';
 import { OrderStatus, PaymentMode } from '../../../core/interfaces/sales-order.interface';
 import { CurrencyInrPipe } from '../../../shared/pipes/currency-inr.pipe';
 import { extractError } from '../../../core/utils/http.util';
+import { formatOrderStatus, formatPaymentMode, PAYMENT_MODE_LABELS, todayDate, formatDateForApi } from '../../../core/utils/sales-order.util';
+import { QuickAddCustomerDialogComponent } from '../../../shared/dialogs/quick-add-customer-dialog/quick-add-customer-dialog.component';
 
 interface OrderItemRow {
   productId: string;
   productName: string;
+  productCode: string;
+  unitName: string;
   currentStock: number;
   quantity: number;
   unitPrice: number;
@@ -52,10 +60,14 @@ interface OrderItemRow {
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatSlideToggleModule,
-    MatTooltipModule,
     MatTableModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatDialogModule,
     PageHeaderComponent,
     CustomerAutocompleteComponent,
+    ProductAutocompleteComponent,
+    EmptyStateComponent,
     CurrencyInrPipe,
   ],
   templateUrl: './sales-order-create.component.html',
@@ -64,21 +76,24 @@ interface OrderItemRow {
 export class SalesOrderCreateComponent {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(SalesOrderService);
-  private readonly productService = inject(ProductService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+
+  @ViewChild(CustomerAutocompleteComponent) private customerPicker?: CustomerAutocompleteComponent;
+  @ViewChild(ProductAutocompleteComponent) private productPicker?: ProductAutocompleteComponent;
 
   readonly saving = signal(false);
   readonly selectedCustomer = signal<Customer | null>(null);
   readonly items = signal<OrderItemRow[]>([]);
-  readonly productSearch = signal('');
-  readonly productOptions = signal<Product[]>([]);
 
-  readonly orderStatuses: OrderStatus[] = ['DRAFT', 'CONFIRMED', 'DELIVERED', 'CANCELLED'];
-  readonly paymentModes: PaymentMode[] = ['CASH', 'GPAY', 'PHONEPE', 'PAYTM', 'CARD', 'BANK_TRANSFER', 'CHEQUE', 'OTHER'];
+  readonly createOrderStatuses: OrderStatus[] = ['DRAFT', 'CONFIRMED'];
+  readonly paymentModes = Object.entries(PAYMENT_MODE_LABELS) as [PaymentMode, string][];
+  readonly maxOrderDate = todayDate();
 
   readonly form = this.fb.nonNullable.group({
     customerId: ['', Validators.required],
+    orderDate: [todayDate(), Validators.required],
     discountAmount: [0, [Validators.min(0)]],
     taxAmount: [0, [Validators.min(0)]],
     notes: [''],
@@ -98,27 +113,39 @@ export class SalesOrderCreateComponent {
     this.subtotal() - (this.form.controls.discountAmount.value ?? 0) + (this.form.controls.taxAmount.value ?? 0)
   );
 
+  readonly hasStockIssues = computed(() =>
+    this.items().some(i => i.quantity > i.currentStock)
+  );
+
   readonly itemColumns = ['product', 'quantity', 'unitPrice', 'lineTotal', 'stock', 'actions'];
+
+  formatOrderStatus = formatOrderStatus;
+  formatPaymentMode = formatPaymentMode;
 
   onCustomerSelected(customer: Customer): void {
     this.selectedCustomer.set(customer);
     this.form.patchValue({ customerId: customer.id });
+    this.form.controls.customerId.markAsTouched();
   }
 
-  searchProducts(term: string): void {
-    this.productSearch.set(term);
-    if (term.length < 1) {
-      this.productOptions.set([]);
-      return;
-    }
-    this.productService.findAll({ search: term, limit: 15, isActive: true }).subscribe(res => {
-      this.productOptions.set(res.data);
-    });
+  openQuickAddCustomer(): void {
+    this.dialog
+      .open(QuickAddCustomerDialogComponent, {
+        width: '420px',
+        maxWidth: '95vw',
+        disableClose: true,
+      })
+      .afterClosed()
+      .subscribe((customer: Customer | undefined) => {
+        if (!customer) return;
+        this.customerPicker?.selectCustomer(customer);
+        this.snackBar.open(`${customer.name} added and selected`, 'Dismiss', { duration: 3000 });
+      });
   }
 
   addProduct(product: Product): void {
     if (this.items().some(i => i.productId === product.id)) {
-      this.snackBar.open('Product already added', 'Dismiss', { duration: 3000 });
+      this.snackBar.open('Product already in this order', 'Dismiss', { duration: 3000 });
       return;
     }
     this.items.update(list => [
@@ -126,16 +153,18 @@ export class SalesOrderCreateComponent {
       {
         productId: product.id,
         productName: product.name,
+        productCode: product.productCode,
+        unitName: product.unit?.name ?? product.unit?.shortCode ?? '',
         currentStock: product.currentStock,
         quantity: 1,
         unitPrice: product.sellingPrice,
       },
     ]);
-    this.productOptions.set([]);
-    this.productSearch.set('');
+    this.productPicker?.clearSelection();
   }
 
   updateItem(index: number, field: 'quantity' | 'unitPrice', value: number): void {
+    if (Number.isNaN(value) || value < 0) return;
     this.items.update(list => {
       const copy = [...list];
       copy[index] = { ...copy[index], [field]: value };
@@ -151,19 +180,76 @@ export class SalesOrderCreateComponent {
     return item.quantity * item.unitPrice;
   }
 
+  onPaymentToggle(enabled: boolean): void {
+    if (enabled) {
+      this.form.patchValue({ paymentAmount: Math.max(0, this.grandTotal()) });
+    }
+  }
+
+  fillFullPayment(): void {
+    this.form.patchValue({ paymentAmount: Math.max(0, this.grandTotal()) });
+  }
+
   onSubmit(): void {
-    if (this.form.invalid || this.items().length === 0 || this.saving()) {
-      this.form.markAllAsTouched();
-      if (this.items().length === 0) {
-        this.snackBar.open('Add at least one product', 'Dismiss', { duration: 3000 });
-      }
+    if (this.saving()) return;
+
+    this.form.markAllAsTouched();
+
+    if (!this.form.controls.customerId.value || !this.selectedCustomer()) {
+      this.snackBar.open('Select a customer from the search dropdown', 'Dismiss', { duration: 4000 });
+      return;
+    }
+
+    if (this.items().length === 0) {
+      this.snackBar.open('Add at least one product to the order', 'Dismiss', { duration: 4000 });
+      return;
+    }
+
+    if (this.form.controls.orderDate.invalid) {
+      this.snackBar.open('Choose a valid order date (today or earlier)', 'Dismiss', { duration: 4000 });
+      return;
+    }
+
+    if (this.form.invalid) {
+      this.snackBar.open('Please fix the highlighted fields before submitting', 'Dismiss', { duration: 4000 });
+      return;
+    }
+
+    if (this.hasStockIssues()) {
+      this.snackBar.open('Some items exceed available stock. Reduce quantities before submitting.', 'Dismiss', {
+        duration: 5000,
+      });
+      return;
+    }
+
+    const raw = this.form.getRawValue();
+
+    if (raw.includePayment && raw.paymentAmount <= 0) {
+      this.snackBar.open('Enter payment amount or turn off "Record payment now"', 'Dismiss', { duration: 4000 });
+      return;
+    }
+
+    if (this.grandTotal() < 0) {
+      this.snackBar.open('Order total cannot be negative. Reduce discount or adjust items.', 'Dismiss', {
+        duration: 4000,
+      });
       return;
     }
 
     this.saving.set(true);
-    const raw = this.form.getRawValue();
+
+    let orderDate: string;
+    try {
+      orderDate = formatDateForApi(raw.orderDate);
+    } catch {
+      this.saving.set(false);
+      this.snackBar.open('Choose a valid order date', 'Dismiss', { duration: 4000 });
+      return;
+    }
+
     const dto = {
       customerId: raw.customerId,
+      orderDate,
       items: this.items().map(i => ({
         productId: i.productId,
         quantity: i.quantity,
@@ -173,20 +259,21 @@ export class SalesOrderCreateComponent {
       taxAmount: raw.taxAmount,
       notes: raw.notes || undefined,
       orderStatus: raw.orderStatus,
-      payment: raw.includePayment && raw.paymentAmount > 0
-        ? {
-            amount: raw.paymentAmount,
-            paymentMode: raw.paymentMode,
-            transactionReference: raw.transactionReference || undefined,
-            notes: raw.paymentNotes || undefined,
-          }
-        : undefined,
+      payment:
+        raw.includePayment && raw.paymentAmount > 0
+          ? {
+              amount: raw.paymentAmount,
+              paymentMode: raw.paymentMode,
+              transactionReference: raw.transactionReference || undefined,
+              notes: raw.paymentNotes || undefined,
+            }
+          : undefined,
     };
 
     this.service.create(dto).subscribe({
       next: order => {
         this.saving.set(false);
-        this.snackBar.open('Order created', 'Dismiss', { duration: 3000 });
+        this.snackBar.open('Order created successfully', 'Dismiss', { duration: 3000 });
         this.router.navigate(['/sales-orders', order.id]);
       },
       error: err => {
@@ -194,5 +281,11 @@ export class SalesOrderCreateComponent {
         this.snackBar.open(extractError(err), 'Dismiss', { duration: 4000 });
       },
     });
+  }
+
+  submitHint(): string {
+    if (!this.selectedCustomer()) return 'Step 1: Select a customer';
+    if (this.items().length === 0) return 'Step 2: Add at least one product';
+    return 'Ready to create order';
   }
 }

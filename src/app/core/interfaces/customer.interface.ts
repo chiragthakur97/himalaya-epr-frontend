@@ -31,19 +31,37 @@ export interface CreateCustomerDto {
   isActive?: boolean;
 }
 
-export type UpdateCustomerDto = Partial<Omit<CreateCustomerDto, 'openingBalance'>>;
+export type UpdateCustomerDto = Partial<
+  Omit<CreateCustomerDto, 'openingBalance' | 'alternateMobile' | 'email' | 'address' | 'gstNumber' | 'notes'>
+> & {
+  alternateMobile?: string | null;
+  email?: string | null;
+  address?: string | null;
+  gstNumber?: string | null;
+  notes?: string | null;
+};
 
 export interface CustomerQueryParams extends PaginationParams {
   search?: string;
   isActive?: boolean;
 }
 
+export interface LedgerQueryParams extends PaginationParams {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export type LedgerReferenceType = 'OPENING_BALANCE' | 'ORDER' | 'PAYMENT' | 'ADJUSTMENT';
+
 export interface LedgerEntry {
   id: string;
-  date: string;
-  reference: string;
-  type: string;
+  customerId: string;
+  referenceType: LedgerReferenceType;
+  referenceId: string | null;
+  description: string;
   debit: number;
   credit: number;
   balance: number;
+  createdAt: string;
+  createdBy?: string | null;
 }

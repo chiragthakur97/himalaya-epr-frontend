@@ -1,15 +1,31 @@
 <div class="feature-page">
-  <app-page-header title="Sales Orders" subtitle="Manage orders and invoices">
+  <app-page-header
+    title="Sales Orders"
+    subtitle="Create bills, track payments, and download invoices"
+  >
     <button actions mat-flat-button color="primary" routerLink="/sales-orders/create">
       <mat-icon>add</mat-icon>
       New Order
     </button>
   </app-page-header>
 
+  <div class="list-summary">
+    <app-summary-card title="Orders (this page)" [value]="orders().length" icon="receipt_long" color="#3949ab" />
+    <app-summary-card title="Total value (this page)" [value]="pageTotalAmount()" icon="payments" color="#2e7d32" prefix="₹" />
+    <app-summary-card title="Outstanding (this page)" [value]="pageOutstanding()" icon="account_balance_wallet" color="#e65100" prefix="₹" />
+  </div>
+
   <app-search-toolbar
-    searchPlaceholder="Search order or customer…"
+    searchPlaceholder="Search by order # or customer name…"
+    [showStatusFilter]="true"
+    [statusOptions]="orderStatusOptions"
+    [showModeFilter]="true"
+    modeLabel="Payment"
+    [modeOptions]="paymentStatusOptions"
     [showDateRange]="true"
     (searchChange)="onSearch($event)"
+    (statusChange)="onOrderStatus($event)"
+    (modeChange)="onPaymentStatus($event)"
     (dateFromChange)="onDateFrom($event)"
     (dateToChange)="onDateTo($event)"
     (clearFilters)="onClear()"
@@ -23,8 +39,11 @@
     [pageIndex]="pageIndex()"
     [pageSize]="pageSize()"
     [actions]="actions"
-    emptyTitle="No sales orders"
+    [clickableRows]="true"
+    emptyTitle="No sales orders found"
+    emptyDescription="Create your first order or adjust filters to see more results."
     (pageChange)="onPage($event)"
     (actionClick)="onAction($event)"
+    (rowClick)="onRowClick($event)"
   />
 </div>

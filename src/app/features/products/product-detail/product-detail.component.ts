@@ -18,6 +18,8 @@ import { DataTableComponent, TableColumn } from '../../../shared/components/data
 import { ProductService } from '../../../core/services/product.service';
 import { Product, InventoryHistoryEntry } from '../../../core/interfaces/product.interface';
 import { extractError } from '../../../core/utils/http.util';
+import { mapInventoryHistoryRow } from '../../../core/utils/inventory.util';
+import { InventoryHistoryRow } from '../../../core/interfaces/inventory.interface';
 
 @Component({
   selector: 'app-product-detail',
@@ -46,14 +48,16 @@ export class ProductDetailComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly product = signal<Product | null>(null);
-  readonly inventoryHistory = signal<InventoryHistoryEntry[]>([]);
+  readonly inventoryHistory = signal<InventoryHistoryRow[]>([]);
 
-  readonly historyColumns: TableColumn<InventoryHistoryEntry>[] = [
-    { key: 'date', header: 'Date', type: 'date' },
-    { key: 'transactionType', header: 'Type', type: 'status' },
-    { key: 'quantity', header: 'Quantity', type: 'number' },
-    { key: 'reference', header: 'Reference' },
-    { key: 'remarks', header: 'Remarks' },
+  readonly historyColumns: TableColumn<InventoryHistoryRow>[] = [
+    { key: 'createdAt', header: 'Date', type: 'date' },
+    { key: 'typeLabel', header: 'Movement' },
+    { key: 'quantity', header: 'Qty', type: 'number' },
+    { key: 'stockBefore', header: 'Before', type: 'number' },
+    { key: 'stockAfter', header: 'After', type: 'number' },
+    { key: 'referenceLabel', header: 'Source' },
+    { key: 'remarks', header: 'Notes' },
   ];
 
   ngOnInit(): void {
@@ -72,7 +76,11 @@ export class ProductDetailComponent implements OnInit {
         this.product.set(product);
         this.service.getInventory(id, { page: 1, limit: 20 }).subscribe({
           next: res => {
-            this.inventoryHistory.set(res.data);
+            this.inventoryHistory.set(
+              res.data.map(entry =>
+                mapInventoryHistoryRow({ ...entry, productId: id })
+              )
+            );
             this.loading.set(false);
           },
           error: () => {

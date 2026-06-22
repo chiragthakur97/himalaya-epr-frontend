@@ -57,6 +57,7 @@ export class DataTableComponent<T extends object = object> {
   readonly emptyTitle = input('No records found');
   readonly emptyDescription = input('');
   readonly clickableRows = input(false);
+  readonly showPaginator = input(true);
 
   readonly pageChange = output<PageEvent>();
   readonly rowClick = output<T>();

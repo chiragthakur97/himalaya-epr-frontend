@@ -63,6 +63,13 @@
               <mat-form-field appearance="outline">
                 <mat-label>Opening Balance (₹)</mat-label>
                 <input matInput type="number" formControlName="openingBalance" min="0" />
+                <mat-hint>One-time opening due amount (cannot be changed later)</mat-hint>
+              </mat-form-field>
+            } @else {
+              <mat-form-field appearance="outline">
+                <mat-label>Outstanding Balance (₹)</mat-label>
+                <input matInput [value]="outstandingBalance()" disabled />
+                <mat-hint>Updated from sales orders and payments — edit via ledger</mat-hint>
               </mat-form-field>
             }
 

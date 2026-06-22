@@ -1,64 +1,56 @@
 export interface DashboardSummary {
-  today_sales: number;
-  monthly_sales: number;
-  today_collections: number;
-  outstanding_amount: number;
-  customer_count: number;
-  product_count: number;
-  low_stock_count: number;
-  pending_orders: number;
+  todaySales: number;
+  monthlySales: number;
+  todayCollections: number;
+  monthlyCollections: number;
+  outstandingAmount: number;
+  totalCustomers: number;
+  totalProducts: number;
+  lowStockCount: number;
+  pendingOrders: number;
 }
 
-export interface ChartDataset {
-  label: string;
-  data: number[];
-  backgroundColor?: string | string[];
-  borderColor?: string | string[];
-  borderWidth?: number;
-  fill?: boolean;
-  tension?: number;
-}
-
-export interface ChartData {
-  labels: string[];
-  datasets: ChartDataset[];
+export interface DailyDataPoint {
+  date: string;
+  amount: number;
 }
 
 export interface DashboardCharts {
-  sales_trend: ChartData;
-  collection_trend?: ChartData;
+  sales: DailyDataPoint[];
+  collections: DailyDataPoint[];
 }
 
 export interface TopCustomer {
-  id: number;
-  name: string;
-  total_purchases: number;
-  total_paid: number;
-  outstanding: number;
+  customerId: string;
+  customerName: string;
+  customerCode: string;
+  totalRevenue: number;
+  orderCount: number;
 }
 
 export interface TopProduct {
-  id: number;
-  name: string;
-  sku: string;
-  quantity_sold: number;
-  total_revenue: number;
-  current_stock: number;
+  productId: string;
+  productName: string;
+  productCode: string;
+  totalSold: number;
+  totalRevenue: number;
 }
 
-export interface PaymentMode {
-  mode: string;
-  total_amount: number;
-  transaction_count: number;
+export interface PaymentModeBreakdown {
+  paymentMode: string;
+  total: number;
+  count: number;
   percentage: number;
 }
 
 export interface SummaryCard {
   title: string;
-  value: string | number;
+  value: number;
   icon: string;
   color: string;
+  gradient?: string;
   prefix?: string;
-  suffix?: string;
-  trend?: number;
+  subtitle?: string;
+  route?: string;
+  featured?: boolean;
 }

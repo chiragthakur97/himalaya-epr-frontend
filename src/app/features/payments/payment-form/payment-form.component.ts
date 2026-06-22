@@ -1,11 +1,12 @@
 import {
   Component,
+  OnInit,
   inject,
   signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -44,10 +45,11 @@ import { extractError } from '../../../core/utils/http.util';
   templateUrl: './payment-form.component.html',
   styleUrl: './payment-form.component.scss',
 })
-export class PaymentFormComponent {
+export class PaymentFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly paymentService = inject(PaymentService);
   private readonly orderService = inject(SalesOrderService);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -64,6 +66,24 @@ export class PaymentFormComponent {
     transactionReference: [''],
     notes: [''],
   });
+
+  ngOnInit(): void {
+    const salesOrderId = this.route.snapshot.queryParamMap.get('salesOrderId');
+    if (salesOrderId) {
+      this.orderService.findOne(salesOrderId).subscribe({
+        next: order => {
+          this.form.patchValue({
+            customerId: order.customerId,
+            salesOrderId: order.id,
+            amount: order.outstandingAmount,
+          });
+          if (order.customer) {
+            this.customerOrders.set([order]);
+          }
+        },
+      });
+    }
+  }
 
   onCustomerSelected(customer: Customer): void {
     this.form.patchValue({ customerId: customer.id, salesOrderId: '' });

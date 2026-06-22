@@ -33,14 +33,17 @@ import { NgClass } from '@angular/common';
   `,
 })
 export class StatusChipComponent {
-  readonly status = input.required<string>();
+  readonly status = input<string | null | undefined>();
 
   label(): string {
-    return this.status().replace(/_/g, ' ');
+    const value = this.status()?.trim();
+    return value ? value.replace(/_/g, ' ') : '—';
   }
 
   chipClass(): string {
-    const s = this.status().toUpperCase();
+    const s = (this.status() ?? '').trim().toUpperCase();
+    if (!s) return 'chip-neutral';
+
     const map: Record<string, string> = {
       ACTIVE: 'chip-success',
       INACTIVE: 'chip-neutral',
@@ -53,11 +56,25 @@ export class StatusChipComponent {
       CANCELLED: 'chip-danger',
       OPENING_STOCK: 'chip-purple',
       STOCK_IN: 'chip-success',
+      STOCK_OUT: 'chip-danger',
       SALE: 'chip-info',
       ADJUSTMENT: 'chip-orange',
+      LOW_STOCK: 'chip-warning',
+      OK: 'chip-success',
       MANUAL: 'chip-neutral',
       ORDER: 'chip-info',
       PURCHASE: 'chip-teal',
+      OPENING_BALANCE: 'chip-purple',
+      PAYMENT: 'chip-success',
+      CASH: 'chip-success',
+      GPAY: 'chip-teal',
+      PHONEPE: 'chip-purple',
+      PAYTM: 'chip-info',
+      CARD: 'chip-info',
+      BANK_TRANSFER: 'chip-teal',
+      CHEQUE: 'chip-orange',
+      OTHER: 'chip-neutral',
+      UNKNOWN: 'chip-neutral',
     };
     return map[s] ?? 'chip-neutral';
   }

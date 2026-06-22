@@ -1,20 +1,30 @@
-import { PaginationParams } from './api.interface';
+export interface InventoryHistoryItem {
+  id: string;
+  productId: string;
+  transactionType: string;
+  quantity: number;
+  stockBefore: number;
+  stockAfter: number;
+  referenceType: string;
+  referenceId: string | null;
+  remarks: string | null;
+  createdAt: string;
+}
 
-export type InventoryReferenceType = 'MANUAL' | 'ORDER' | 'PURCHASE' | 'ADJUSTMENT';
+export interface InventoryHistoryRow extends InventoryHistoryItem {
+  typeLabel: string;
+  referenceLabel: string;
+}
 
 export interface AddStockDto {
   productId: string;
   quantity: number;
-  referenceType?: InventoryReferenceType;
-  referenceId?: string;
   remarks?: string;
 }
 
 export interface RemoveStockDto {
   productId: string;
   quantity: number;
-  referenceType?: InventoryReferenceType;
-  referenceId?: string;
   remarks?: string;
 }
 
@@ -24,17 +34,7 @@ export interface AdjustStockDto {
   remarks?: string;
 }
 
-export interface InventoryHistoryItem {
-  id: string;
-  date: string;
-  productId: string;
-  product?: { id: string; name: string; productCode?: string; sku?: string };
-  transactionType: string;
-  quantity: number;
-  reference: string | null;
-  remarks: string | null;
-}
-
-export interface InventoryHistoryParams extends PaginationParams {
-  productId?: string;
+export interface InventoryHistoryParams {
+  page?: number;
+  limit?: number;
 }

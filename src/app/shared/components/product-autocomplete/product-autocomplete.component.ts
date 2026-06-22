@@ -68,6 +68,7 @@ export class ProductAutocompleteComponent implements OnInit {
     if (id) {
       this.service.findOne(id).subscribe(p => {
         this.control.setValue(p, { emitEvent: false });
+        this.productSelected.emit(p);
       });
     }
   }
@@ -78,5 +79,10 @@ export class ProductAutocompleteComponent implements OnInit {
 
   onSelect(product: Product): void {
     this.productSelected.emit(product);
+  }
+
+  clearSelection(): void {
+    this.control.setValue('', { emitEvent: false });
+    this.products.set([]);
   }
 }

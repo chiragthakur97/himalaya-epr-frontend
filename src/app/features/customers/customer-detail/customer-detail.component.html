@@ -62,13 +62,14 @@
     </div>
 
     <section class="detail-section ledger-section">
-      <h3><mat-icon>receipt_long</mat-icon> Recent Ledger Entries</h3>
-      <app-data-table
-        [columns]="ledgerColumns"
-        [data]="ledgerEntries()"
-        [loading]="false"
-        [totalCount]="ledgerEntries().length"
-        emptyTitle="No ledger entries"
+      <div class="ledger-section-header">
+        <h3><mat-icon>receipt_long</mat-icon> Recent Ledger Entries</h3>
+        <a mat-button [routerLink]="['/customers', c.id, 'ledger']">View full ledger</a>
+      </div>
+      <app-customer-ledger-panel
+        [customerId]="customerId()"
+        [customer]="c"
+        [previewMode]="true"
       />
     </section>
   }

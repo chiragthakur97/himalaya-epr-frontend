@@ -6,6 +6,7 @@ import {
   UpdateCustomerDto,
   CustomerQueryParams,
   LedgerEntry,
+  LedgerQueryParams,
 } from '../interfaces/customer.interface';
 import { PaginatedResult } from '../interfaces/api.interface';
 import { environment } from '../../../environments/environment';
@@ -40,11 +41,18 @@ export class CustomerService {
       .pipe(unwrapData<Customer>());
   }
 
-  getLedger(id: string, params: CustomerQueryParams = {}) {
+  getLedger(id: string, params: LedgerQueryParams = {}) {
     return this.http
       .get<unknown>(`${this.base}/${id}/ledger`, {
         params: toHttpParams(params as Record<string, string | number | boolean>),
       })
       .pipe(mapPaginated<LedgerEntry>());
+  }
+
+  downloadLedgerCsv(id: string, params: Pick<LedgerQueryParams, 'dateFrom' | 'dateTo'> = {}) {
+    return this.http.get(`${this.base}/${id}/ledger/export`, {
+      params: toHttpParams(params as Record<string, string | number | boolean>),
+      responseType: 'blob',
+    });
   }
 }

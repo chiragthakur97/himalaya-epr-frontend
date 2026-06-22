@@ -42,9 +42,16 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Unit ID</mat-label>
-              <input matInput formControlName="unitId" />
-              <mat-hint>UUID from your unit master</mat-hint>
+              <mat-label>Unit</mat-label>
+              <mat-select formControlName="unitId" [disabled]="unitsLoading()">
+                <mat-option value="">— Select unit —</mat-option>
+                @for (unit of units(); track unit.id) {
+                  <mat-option [value]="unit.id">{{ unit.name }} ({{ unit.shortCode }})</mat-option>
+                }
+              </mat-select>
+              @if (form.controls.unitId.hasError('required') && form.controls.unitId.touched) {
+                <mat-error>Unit is required</mat-error>
+              }
             </mat-form-field>
 
             <mat-form-field appearance="outline">

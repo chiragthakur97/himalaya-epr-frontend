@@ -13,9 +13,9 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { SummaryCardComponent } from '../../../shared/components/summary-card/summary-card.component';
 import { StatusChipComponent } from '../../../shared/components/status-chip/status-chip.component';
-import { DataTableComponent, TableColumn } from '../../../shared/components/data-table/data-table.component';
+import { CustomerLedgerPanelComponent } from '../customer-ledger-panel/customer-ledger-panel.component';
 import { CustomerService } from '../../../core/services/customer.service';
-import { Customer, LedgerEntry } from '../../../core/interfaces/customer.interface';
+import { Customer } from '../../../core/interfaces/customer.interface';
 import { extractError } from '../../../core/utils/http.util';
 
 @Component({
@@ -31,7 +31,7 @@ import { extractError } from '../../../core/utils/http.util';
     LoadingSpinnerComponent,
     SummaryCardComponent,
     StatusChipComponent,
-    DataTableComponent,
+    CustomerLedgerPanelComponent,
   ],
   templateUrl: './customer-detail.component.html',
   styleUrl: './customer-detail.component.scss',
@@ -44,16 +44,7 @@ export class CustomerDetailComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly customer = signal<Customer | null>(null);
-  readonly ledgerEntries = signal<LedgerEntry[]>([]);
-
-  readonly ledgerColumns: TableColumn<LedgerEntry>[] = [
-    { key: 'date', header: 'Date', type: 'date' },
-    { key: 'reference', header: 'Reference' },
-    { key: 'type', header: 'Type', type: 'status' },
-    { key: 'debit', header: 'Debit', type: 'currency' },
-    { key: 'credit', header: 'Credit', type: 'currency' },
-    { key: 'balance', header: 'Balance', type: 'currency' },
-  ];
+  readonly customerId = signal('');
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -61,6 +52,7 @@ export class CustomerDetailComponent implements OnInit {
       this.router.navigate(['/customers']);
       return;
     }
+    this.customerId.set(id);
     this.load(id);
   }
 
@@ -69,25 +61,12 @@ export class CustomerDetailComponent implements OnInit {
     this.service.findOne(id).subscribe({
       next: customer => {
         this.customer.set(customer);
-        this.loadLedger(id);
+        this.loading.set(false);
       },
       error: err => {
         this.loading.set(false);
         this.snackBar.open(extractError(err), 'Dismiss', { duration: 4000 });
         this.router.navigate(['/customers']);
-      },
-    });
-  }
-
-  private loadLedger(id: string): void {
-    this.service.getLedger(id, { page: 1, limit: 10 }).subscribe({
-      next: res => {
-        this.ledgerEntries.set(res.data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.ledgerEntries.set([]);
-        this.loading.set(false);
       },
     });
   }

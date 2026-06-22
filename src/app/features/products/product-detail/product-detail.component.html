@@ -10,6 +10,10 @@
         { label: p.name }
       ]"
     >
+      <button actions mat-stroked-button [routerLink]="['/inventory']" [queryParams]="{ productId: p.id }">
+        <mat-icon>warehouse</mat-icon>
+        Manage Stock
+      </button>
       <button actions mat-flat-button color="primary" [routerLink]="['/products', p.id, 'edit']">
         <mat-icon>edit</mat-icon>
         Edit
@@ -26,7 +30,7 @@
               <div class="detail-row"><span class="label">SKU</span><span class="value">{{ p.sku ?? '—' }}</span></div>
               <div class="detail-row"><span class="label">Brand</span><span class="value">{{ p.brand ?? '—' }}</span></div>
               <div class="detail-row"><span class="label">Category</span><span class="value">{{ p.category?.name ?? p.categoryId }}</span></div>
-              <div class="detail-row"><span class="label">Unit</span><span class="value">{{ p.unit?.name ?? p.unitId }}</span></div>
+              <div class="detail-row"><span class="label">Unit</span><span class="value">{{ p.unit ? p.unit.name + ' (' + (p.unit.shortCode ?? p.unit.name) + ')' : p.unitId }}</span></div>
               <div class="detail-row"><span class="label">GST</span><span class="value">{{ p.gstPercentage }}%</span></div>
               <div class="detail-row">
                 <span class="label">Status</span>
@@ -53,7 +57,8 @@
               @if (isLowStock(p)) {
                 <p class="low-stock-alert">
                   <mat-icon>warning</mat-icon>
-                  Stock is at or below minimum level
+                  Stock is at or below minimum level —
+                  <a routerLink="/inventory" [queryParams]="{ productId: p.id, action: 'in' }">Add stock now</a>
                 </p>
               }
             </section>

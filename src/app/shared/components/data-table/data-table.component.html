@@ -65,13 +65,15 @@
       </table>
     </div>
 
-    <mat-paginator
-      [length]="totalCount()"
-      [pageIndex]="pageIndex()"
-      [pageSize]="pageSize()"
-      [pageSizeOptions]="pageSizeOptions()"
-      (page)="onPage($event)"
-      showFirstLastButtons
-    />
+    @if (showPaginator()) {
+      <mat-paginator
+        [length]="totalCount()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions()"
+        (page)="onPage($event)"
+        showFirstLastButtons
+      />
+    }
   }
 </div>

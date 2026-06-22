@@ -3,16 +3,19 @@ import {
   OnInit,
   inject,
   signal,
+  computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
 import { PageEvent } from '@angular/material/paginator';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SearchToolbarComponent, StatusOption } from '../../../shared/components/search-toolbar/search-toolbar.component';
 import { DataTableComponent, TableColumn, TableAction } from '../../../shared/components/data-table/data-table.component';
+import { SummaryCardComponent } from '../../../shared/components/summary-card/summary-card.component';
 import { SalesOrderService } from '../../../core/services/sales-order.service';
 import { SalesOrder, OrderStatus, PaymentStatus } from '../../../core/interfaces/sales-order.interface';
 import { extractError } from '../../../core/utils/http.util';
@@ -26,9 +29,11 @@ import { extractError } from '../../../core/utils/http.util';
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
+    MatCardModule,
     PageHeaderComponent,
     SearchToolbarComponent,
     DataTableComponent,
+    SummaryCardComponent,
   ],
   templateUrl: './sales-order-list.component.html',
   styleUrl: './sales-order-list.component.scss',
@@ -49,7 +54,16 @@ export class SalesOrderListComponent implements OnInit {
   readonly dateFrom = signal('');
   readonly dateTo = signal('');
 
+  readonly pageTotalAmount = computed(() =>
+    this.orders().reduce((sum, o) => sum + (o.totalAmount ?? 0), 0)
+  );
+
+  readonly pageOutstanding = computed(() =>
+    this.orders().reduce((sum, o) => sum + (o.outstandingAmount ?? 0), 0)
+  );
+
   readonly orderStatusOptions: StatusOption[] = [
+    { label: 'All statuses', value: null },
     { label: 'Draft', value: 'DRAFT' },
     { label: 'Confirmed', value: 'CONFIRMED' },
     { label: 'Delivered', value: 'DELIVERED' },
@@ -57,6 +71,7 @@ export class SalesOrderListComponent implements OnInit {
   ];
 
   readonly paymentStatusOptions: StatusOption[] = [
+    { label: 'All payments', value: null },
     { label: 'Unpaid', value: 'UNPAID' },
     { label: 'Partially Paid', value: 'PARTIALLY_PAID' },
     { label: 'Paid', value: 'PAID' },
@@ -68,13 +83,13 @@ export class SalesOrderListComponent implements OnInit {
     { key: 'orderDate', header: 'Date', type: 'date' },
     { key: 'totalAmount', header: 'Total', type: 'currency' },
     { key: 'paidAmount', header: 'Paid', type: 'currency' },
-    { key: 'outstandingAmount', header: 'Outstanding', type: 'currency' },
+    { key: 'outstandingAmount', header: 'Due', type: 'currency' },
     { key: 'paymentStatus', header: 'Payment', type: 'status' },
-    { key: 'orderStatus', header: 'Status', type: 'status' },
+    { key: 'orderStatus', header: 'Order', type: 'status' },
   ];
 
   readonly actions: TableAction[] = [
-    { icon: 'visibility', label: 'View', action: 'view' },
+    { icon: 'visibility', label: 'View details', action: 'view' },
   ];
 
   ngOnInit(): void {
@@ -106,15 +121,61 @@ export class SalesOrderListComponent implements OnInit {
       });
   }
 
-  onSearch(v: string): void { this.search.set(v); this.pageIndex.set(0); this.load(); }
-  onDateFrom(v: string): void { this.dateFrom.set(v); this.pageIndex.set(0); this.load(); }
-  onDateTo(v: string): void { this.dateTo.set(v); this.pageIndex.set(0); this.load(); }
-  onClear(): void {
-    this.search.set(''); this.orderStatus.set(null); this.paymentStatus.set(null);
-    this.dateFrom.set(''); this.dateTo.set(''); this.pageIndex.set(0); this.load();
+  onSearch(v: string): void {
+    this.search.set(v);
+    this.pageIndex.set(0);
+    this.load();
   }
-  onPage(e: PageEvent): void { this.pageIndex.set(e.pageIndex); this.pageSize.set(e.pageSize); this.load(); }
+
+  onOrderStatus(v: string | boolean | null): void {
+    this.orderStatus.set(v as OrderStatus | null);
+    this.pageIndex.set(0);
+    this.load();
+  }
+
+  onPaymentStatus(v: string | null): void {
+    this.paymentStatus.set(v as PaymentStatus | null);
+    this.pageIndex.set(0);
+    this.load();
+  }
+
+  onDateFrom(v: string): void {
+    this.dateFrom.set(v);
+    this.pageIndex.set(0);
+    this.load();
+  }
+
+  onDateTo(v: string): void {
+    this.dateTo.set(v);
+    this.pageIndex.set(0);
+    this.load();
+  }
+
+  onClear(): void {
+    this.search.set('');
+    this.orderStatus.set(null);
+    this.paymentStatus.set(null);
+    this.dateFrom.set('');
+    this.dateTo.set('');
+    this.pageIndex.set(0);
+    this.load();
+  }
+
+  onPage(e: PageEvent): void {
+    this.pageIndex.set(e.pageIndex);
+    this.pageSize.set(e.pageSize);
+    this.load();
+  }
+
   onAction(e: { action: string; row: SalesOrder }): void {
-    if (e.action === 'view') this.router.navigate(['/sales-orders', e.row.id]);
+    if (e.action === 'view') this.openOrder(e.row);
+  }
+
+  onRowClick(row: SalesOrder): void {
+    this.openOrder(row);
+  }
+
+  private openOrder(order: SalesOrder): void {
+    this.router.navigate(['/sales-orders', order.id]);
   }
 }

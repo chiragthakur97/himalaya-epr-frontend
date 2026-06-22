@@ -72,4 +72,10 @@ export class CustomerAutocompleteComponent implements OnInit {
   onSelect(customer: Customer): void {
     this.customerSelected.emit(customer);
   }
+
+  selectCustomer(customer: Customer): void {
+    this.control.setValue(customer, { emitEvent: false });
+    this.customers.set([customer]);
+    this.customerSelected.emit(customer);
+  }
 }
